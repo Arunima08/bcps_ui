@@ -34,12 +34,21 @@ export default function Posts() {
   const handleAction = async (postId, action) => {
     try {
       if(action === 'approve') {
-        await api.put(`/admin/posts/${postId}/approve`);
+        const res = await api.put(`/admin/posts/${postId}/approve`, {});
+        if(res.data.success) {
+          alert("Post approved successfully!");
+        }
       } else if (action === 'reject') {
-        await api.put(`/admin/posts/${postId}/reject`);
+        const res = await api.put(`/admin/posts/${postId}/reject`, {});
+        if(res.data.success) {
+          alert("Post rejected successfully!");
+        }
       } else if (action === 'delete') {
         if(window.confirm("Delete this post permanently?")) {
-          await api.delete(`/admin/posts/${postId}`);
+          const res = await api.delete(`/admin/posts/${postId}`);
+          if(res.data.success) {
+             alert("Post deleted successfully!");
+          }
         } else {
           return;
         }
@@ -47,6 +56,20 @@ export default function Posts() {
       fetchPosts();
     } catch (error) {
       console.error(`Error performing ${action} on post:`, error);
+      alert(`Error: ${error.response?.data?.message || 'Failed to complete action'}`);
+    }
+  };
+
+  const handleStatusChange = async (postId, newStatus) => {
+    try {
+      const res = await api.put(`/admin/posts/${postId}/status`, { status: newStatus });
+      if(res.data.success) {
+        alert("Status updated successfully!");
+        fetchPosts();
+      }
+    } catch (error) {
+      console.error('Error updating status:', error);
+      alert(`Error: ${error.response?.data?.message || 'Failed to update status'}`);
     }
   };
 
@@ -104,12 +127,25 @@ export default function Posts() {
                 <td>{post.author?.name || 'Unknown'}</td>
                 <td><span className="tag-c">{post.category?.name || 'Uncategorized'}</span></td>
                 <td>{new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
-                <td><span className={`badge-c ${statusClass}`}>{post.status.charAt(0).toUpperCase() + post.status.slice(1).replace('-', ' ')}</span></td>
+                <td>
+                  <select 
+                    className={`form-select form-select-sm badge-c ${statusClass}`} 
+                    value={post.status} 
+                    onChange={(e) => handleStatusChange(post._id, e.target.value)}
+                    style={{cursor: 'pointer', display: 'inline-block', minWidth: '110px'}}
+                  >
+                    <option value="draft">Draft</option>
+                    <option value="pending">Pending</option>
+                    <option value="in-review">In Review</option>
+                    <option value="published">Published</option>
+                    <option value="rejected">Rejected</option>
+                  </select>
+                </td>
                 <td>
                   {(post.status === 'pending' || post.status === 'in-review') && (
                     <>
-                      <button className="btn-success-c me-1" onClick={() => handleAction(post._id, 'approve')} title="Approve"><i className="fa-solid fa-check"></i></button>
-                      <button className="btn-danger-c me-1" onClick={() => handleAction(post._id, 'reject')} title="Reject"><i className="fa-solid fa-xmark"></i></button>
+                      <button className="btn-success-c me-1" onClick={() => handleAction(post._id, 'approve')} title="Approve"><i className="fa-solid fa-check"></i> Approve</button>
+                      <button className="btn-danger-c me-1" onClick={() => handleAction(post._id, 'reject')} title="Reject"><i className="fa-solid fa-xmark"></i> Reject</button>
                     </>
                   )}
                   {post.status === 'published' && <button className="btn-outline-c btn-sm-c me-1" onClick={() => navigate(`/reader/blog/${post._id}`)}>View</button>}
