@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import api from '../../api';
 
 export default function Profile() {
@@ -8,8 +9,6 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [profilePic, setProfilePic] = useState(null);
-  const [successMsg, setSuccessMsg] = useState('');
-  const [errorMsg, setErrorMsg] = useState('');
 
   // Profile form
   const [name, setName] = useState('');
@@ -21,8 +20,6 @@ export default function Profile() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [pwLoading, setPwLoading] = useState(false);
-  const [pwMsg, setPwMsg] = useState('');
-  const [pwError, setPwError] = useState('');
 
   useEffect(() => {
     fetchProfile();
@@ -48,8 +45,6 @@ export default function Profile() {
   const handleSaveProfile = async () => {
     try {
       setSaving(true);
-      setSuccessMsg('');
-      setErrorMsg('');
 
       const formData = new FormData();
       formData.append('name', name);
@@ -64,21 +59,20 @@ export default function Profile() {
       });
 
       if (response.data.success) {
-        setSuccessMsg('Profile updated successfully!');
+        toast.success('Profile updated successfully!');
         setProfile(response.data.data);
         // Update localStorage
-        const stored = JSON.parse(localStorage.getItem('user'));
+        const stored = JSON.parse(sessionStorage.getItem('user'));
         if (stored) {
           stored.name = response.data.data.name;
           stored.email = response.data.data.email;
           stored.bio = response.data.data.bio;
           stored.profilePic = response.data.data.profilePic;
-          localStorage.setItem('user', JSON.stringify(stored));
+          sessionStorage.setItem('user', JSON.stringify(stored));
         }
-        setTimeout(() => setSuccessMsg(''), 3000);
       }
     } catch (error) {
-      setErrorMsg(error.response?.data?.message || 'Failed to update profile');
+      toast.error(error.response?.data?.message || 'Failed to update profile');
     } finally {
       setSaving(false);
     }
@@ -87,8 +81,6 @@ export default function Profile() {
   const handleUpdatePassword = async () => {
     try {
       setPwLoading(true);
-      setPwMsg('');
-      setPwError('');
 
       const response = await api.put('/reader/profile/password', {
         currentPassword,
@@ -97,14 +89,13 @@ export default function Profile() {
       });
 
       if (response.data.success) {
-        setPwMsg('Password updated successfully!');
+        toast.success('Password updated successfully!');
         setCurrentPassword('');
         setNewPassword('');
         setConfirmPassword('');
-        setTimeout(() => setPwMsg(''), 3000);
       }
     } catch (error) {
-      setPwError(error.response?.data?.message || 'Failed to update password');
+      toast.error(error.response?.data?.message || 'Failed to update password');
     } finally {
       setPwLoading(false);
     }
@@ -120,10 +111,8 @@ export default function Profile() {
   <button className="btn-primary-c" onClick={handleSaveProfile} disabled={saving}>
     <i className="fa-solid fa-save"></i> {saving ? 'Saving...' : 'Save Changes'}
   </button>
-</div>
 
-{successMsg && <div className="alert alert-success" style={{padding:'10px',fontSize:'14px',borderRadius:'8px',marginBottom:'16px',background:'#ecfdf5',color:'var(--green)',border:'1px solid #a7f3d0'}}>{successMsg}</div>}
-{errorMsg && <div className="alert alert-danger" style={{padding:'10px',fontSize:'14px',borderRadius:'8px',marginBottom:'16px'}}>{errorMsg}</div>}
+</div>
 
 <div className="row g-3">
   <div className="col-lg-6"><div className="card-custom"><div className="card-head-custom"><span className="card-title-c">Personal Information</span></div><div className="p-3">
@@ -177,9 +166,6 @@ export default function Profile() {
   </div></div></div>
   
   <div className="col-lg-6"><div className="card-custom"><div className="card-head-custom"><span className="card-title-c">Security Settings</span></div><div className="p-3">
-    {pwMsg && <div className="alert alert-success" style={{padding:'10px',fontSize:'14px',borderRadius:'8px',marginBottom:'12px',background:'#ecfdf5',color:'var(--green)',border:'1px solid #a7f3d0'}}>{pwMsg}</div>}
-    {pwError && <div className="alert alert-danger" style={{padding:'10px',fontSize:'14px',borderRadius:'8px',marginBottom:'12px'}}>{pwError}</div>}
-    
     <div className="mb-3">
       <label className="form-label-c">Current Password</label>
       <input 

@@ -50,7 +50,7 @@ export default function Submit() {
                 if (post.status === 'rejected') statusClass = 'badge-rejected';
                 
                 return (
-                  <tr key={post._id} onClick={() => navigate(`/reader/blog/${post._id}`)} style={{cursor:'pointer'}}>
+                  <tr key={post._id} onClick={() => navigate(`/author/blog/${post._id}`)} style={{cursor:'pointer'}}>
                     <td><strong className="text-truncate" style={{maxWidth: '300px', display: 'inline-block'}}>{post.title}</strong></td>
                     <td>{new Date(post.createdAt).toLocaleDateString()}</td>
                     <td><span className={`badge-c ${statusClass}`}>{post.status.charAt(0).toUpperCase() + post.status.slice(1).replace('-', ' ')}</span></td>

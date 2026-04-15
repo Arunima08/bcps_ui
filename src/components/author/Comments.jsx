@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import api from '../../api';
 
 export default function Comments() {
@@ -36,10 +37,11 @@ export default function Comments() {
     try {
       await api.post(`/author/comments/${commentId}/reply`, { text });
       setReplyText({ ...replyText, [commentId]: '' });
+      toast.success('Reply submitted');
       fetchComments();
     } catch (error) {
       console.error('Error replying to comment:', error);
-      alert('Failed to reply to comment.');
+      toast.error('Failed to reply to comment.');
     }
   };
 

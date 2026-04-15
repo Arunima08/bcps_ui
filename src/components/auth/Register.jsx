@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import api from '../../api';
 
 export default function Register() {
@@ -24,10 +25,12 @@ export default function Register() {
 
   const handleRegister = async () => {
     if(!termsAccepted) {
+      toast.warn('Please accept the Terms & Conditions');
       setError('Please accept the Terms & Conditions');
       return;
     }
     if(!formData.name || !formData.username || !formData.email || !formData.password) {
+      toast.error('Please fill in all required fields');
       setError('Please fill in all required fields');
       return;
     }
@@ -53,11 +56,14 @@ export default function Register() {
       });
 
       if(response.data.success) {
-        localStorage.setItem('user', JSON.stringify(response.data.data));
+        sessionStorage.setItem('user', JSON.stringify(response.data.data));
+        toast.success('Registration successful! Welcome aboard.');
         navigate(formData.role === 'author' ? '/author' : '/reader');
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed. Please try again.');
+      const msg = err.response?.data?.message || 'Registration failed. Please try again.';
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -74,7 +80,7 @@ export default function Register() {
           
           {/* LEFT TEXT PANEL */}
           <div className="col-lg-5 d-none d-lg-block text-white">
-            <h1 className="fw-bold mb-3" style={{ fontSize: '42px' }}>BlogSphere</h1>
+            <h1 className="fw-bold mb-3" style={{ fontSize: '32px' }}>Blogging and Content Publishing System</h1>
             <p className="text-info mb-4 fs-5">Write • Share • Inspire</p>
             <div className="mb-3"><i className="fas fa-pen me-2"></i>Create & publish blogs</div>
             <div className="mb-3"><i className="fas fa-users me-2"></i>Connect with readers</div>
@@ -90,7 +96,7 @@ export default function Register() {
                   <i className="fas fa-blog"></i>
                 </div>
                 <div>
-                  <h5 className="fw-bold mb-0">BlogSphere</h5>
+                  <h5 className="fw-bold mb-0">Blogging System</h5>
                   <small className="text-primary">Blogging Platform</small>
                 </div>
               </div>

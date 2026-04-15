@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, useParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import api from '../../api';
 
 export default function Blog() {
@@ -14,8 +15,10 @@ export default function Blog() {
   const [liked, setLiked] = useState(false);
   const [bookmarked, setBookmarked] = useState(false);
   const [likesCount, setLikesCount] = useState(0);
+  const [following, setFollowing] = useState(false);
+  const [followersCount, setFollowersCount] = useState(0);
 
-  const user = JSON.parse(localStorage.getItem('user'));
+  const user = JSON.parse(sessionStorage.getItem('user'));
 
   useEffect(() => {
     if (id) {
@@ -35,6 +38,9 @@ export default function Blog() {
         setLikesCount(data.post.likes?.length || 0);
         setLiked(data.post.likes?.includes(user?._id) || false);
         setBookmarked(data.post.bookmarks?.includes(user?._id) || false);
+        // Initialize follow state
+        setFollowersCount(data.post.author?.followers?.length || 0);
+        setFollowing(data.post.author?.followers?.includes(user?._id) || false);
       }
     } catch (error) {
       console.error('Error fetching blog post:', error);
@@ -49,6 +55,7 @@ export default function Blog() {
       if (response.data.success) {
         setLiked(!liked);
         setLikesCount(response.data.likesCount);
+        toast.success(response.data.likesCount > likesCount ? 'Post liked!' : 'Post unliked!');
       }
     } catch (error) {
       console.error('Error toggling like:', error);
@@ -60,6 +67,7 @@ export default function Blog() {
       const response = await api.put(`/reader/blog/${id}/bookmark`);
       if (response.data.success) {
         setBookmarked(!bookmarked);
+        toast.success(!bookmarked ? 'Added to bookmarks' : 'Removed from bookmarks');
       }
     } catch (error) {
       console.error('Error toggling bookmark:', error);
@@ -74,10 +82,11 @@ export default function Blog() {
       if (response.data.success) {
         setComments([response.data.data, ...comments]);
         setCommentText('');
+        toast.success('Comment posted!');
       }
     } catch (error) {
       console.error('Error posting comment:', error);
-      alert('Failed to post comment');
+      toast.error('Failed to post comment');
     } finally {
       setSubmittingComment(false);
     }
@@ -87,7 +96,9 @@ export default function Blog() {
     try {
       const response = await api.put(`/reader/blog/follow/${authorId}`);
       if (response.data.success) {
-        alert(response.data.message);
+        setFollowing(response.data.isFollowing);
+        setFollowersCount(response.data.followersCount);
+        toast.success(response.data.isFollowing ? 'Following author' : 'Unfollowed author');
       }
     } catch (error) {
       console.error('Error toggling follow:', error);
@@ -141,7 +152,7 @@ export default function Blog() {
                 <button className={`btn-outline-c ${bookmarked ? 'active' : ''}`} onClick={handleBookmark} style={bookmarked ? { background: 'var(--blue-500)', color: '#fff', borderColor: 'var(--blue-500)' } : {}}>
                   <i className={`fa-${bookmarked ? 'solid' : 'regular'} fa-bookmark`}></i> {bookmarked ? 'Saved' : 'Save'}
                 </button>
-                <button className="btn-outline-c" onClick={() => navigator.clipboard.writeText(window.location.href).then(() => alert('Link copied!'))}>
+                <button className="btn-outline-c" onClick={() => navigator.clipboard.writeText(window.location.href).then(() => toast.success('Link copied!'))}>
                   <i className="fa-solid fa-share-nodes"></i> Share
                 </button>
               </div>
@@ -191,10 +202,13 @@ export default function Blog() {
             <div className="fw-700" style={{ fontSize: '16px' }}>{post.author?.name || 'Unknown'}</div>
             <div style={{ fontSize: '13px', color: 'var(--gray-400)', marginBottom: '12px' }}>{post.author?.bio || 'Blog Author'}</div>
             <div className="mb-2" style={{ fontSize: '12px', color: 'var(--gray-500)' }}>
-              {post.author?.followers?.length || 0} followers
+              {followersCount} followers
             </div>
-            <button className="btn-primary-c w-100 justify-content-center" onClick={() => handleFollow(post.author?._id)}>
-              <i className="fa-solid fa-user-plus"></i> Follow Author
+            <button
+              className={`w-100 justify-content-center ${following ? 'btn-outline-c' : 'btn-primary-c'}`}
+              onClick={() => handleFollow(post.author?._id)}
+            >
+              <i className={`fa-solid ${following ? 'fa-user-minus' : 'fa-user-plus'}`}></i> {following ? 'Unfollow Author' : 'Follow Author'}
             </button>
           </div></div>
 

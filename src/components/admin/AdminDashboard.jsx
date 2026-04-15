@@ -33,7 +33,7 @@ export default function AdminDashboard() {
     <> 
 <div className="d-flex align-items-start justify-content-between mb-4 flex-wrap gap-3">
   <div><h4 className="fw-800 mb-1" style={{color:'var(--gray-900)'}}>Welcome back, Admin 👋</h4>
-  <p style={{color:'var(--gray-400)',fontSize:'13px'}}>Here's what's happening on BlogSphere today</p></div>
+  <p style={{color:'var(--gray-400)',fontSize:'13px'}}>Here's what's happening on your Blogging System today</p></div>
   <span className="zone-strip admin"><i className="fa-solid fa-shield-halved"></i> Admin Zone</span>
 </div>
 <div className="row g-3 mb-4">

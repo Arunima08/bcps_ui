@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import api from '../../api';
 
 export default function Media() {
@@ -46,11 +47,12 @@ export default function Media() {
         }
       });
       if(response.data.success) {
+        toast.success('File uploaded successfully');
         fetchMedia();
       }
     } catch (error) {
       console.error('Error uploading media:', error);
-      alert('Failed to upload file');
+      toast.error(error.response?.data?.message || 'Failed to upload file');
     } finally {
       setUploading(false);
       e.target.value = null; // reset
@@ -62,9 +64,11 @@ export default function Media() {
     if(window.confirm('Delete this file permanently?')) {
       try {
         await api.delete(`/admin/media/${id}`);
+        toast.success('File deleted');
         fetchMedia();
       } catch (error) {
         console.error('Error deleting media:', error);
+        toast.error('Failed to delete file');
       }
     }
   };

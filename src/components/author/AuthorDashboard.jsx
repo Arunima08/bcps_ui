@@ -51,7 +51,7 @@ export default function AuthorDashboard() {
         if (post.status === 'rejected') statusClass = 'badge-rejected';
 
         return (
-          <tr key={post._id} onClick={() => post.status === 'published' ? navigate(`/reader/blog/${post._id}`) : null} style={{cursor: post.status === 'published' ? 'pointer' : 'default'}}>
+          <tr key={post._id} onClick={() => post.status === 'published' ? navigate(`/author/blog/${post._id}`) : null} style={{cursor: post.status === 'published' ? 'pointer' : 'default'}}>
              <td><strong className="text-truncate" style={{display: 'inline-block', maxWidth: '200px'}}>{post.title}</strong></td>
              <td><span className={`badge-c ${statusClass}`}>{post.status.charAt(0).toUpperCase() + post.status.slice(1).replace('-', ' ')}</span></td>
              <td>{post.status === 'published' ? post.views : '—'}</td>
@@ -62,7 +62,7 @@ export default function AuthorDashboard() {
   </div></div>
   <div className="col-lg-6"><div className="card-custom"><div className="card-head-custom"><span className="card-title-c">Recent Comments on Your Posts</span></div><div className="p-3">
     {recentComments && recentComments.length > 0 ? recentComments.map(comment => (
-      <div key={comment._id} className="notif-item" onClick={() => navigate(`/reader/blog/${comment.post}`)} style={{cursor:'pointer'}}>
+      <div key={comment._id} className="notif-item" onClick={() => navigate(`/author/blog/${comment.post}`)} style={{cursor:'pointer'}}>
         <div className="notif-icon" style={{background:'var(--blue-50)',color:'var(--blue-600)'}}><i className="fa-regular fa-comment"></i></div>
         <div style={{flex: 1, minWidth: 0}}>
           <div className="notif-text text-truncate"><strong>{comment.user?.name || 'User'}</strong> commented on "{comment.post?.title || 'a post'}"</div>

@@ -4,7 +4,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 export default function Sidebar({ zone, sidebarOpen, closeSidebar }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const user = JSON.parse(localStorage.getItem('user')) || {};
+  const user = JSON.parse(sessionStorage.getItem('user')) || {};
 
   const getStyle = (z) => {
     if (z === zone) {
@@ -27,8 +27,8 @@ export default function Sidebar({ zone, sidebarOpen, closeSidebar }) {
       <div className="d-flex align-items-center gap-2 p-3 border-bottom border-secondary border-opacity-25">
         <div className="logo-icon">🛒</div>
         <div>
-          <div className="logo-text">E-Cart</div>
-          <div className="logo-sub">Blog Portal</div>
+          <div className="logo-text" style={{ fontSize: '12px' }}>Blogging & Content</div>
+          <div className="logo-sub" style={{ fontSize: '10px' }}>Publishing System</div>
         </div>
       </div>
 

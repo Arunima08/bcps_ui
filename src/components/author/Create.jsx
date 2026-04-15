@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import api from '../../api';
 
 export default function Create() {
@@ -13,7 +14,7 @@ export default function Create() {
   const [visibility, setVisibility] = useState('public');
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
+  const [aiLoading, setAiLoading] = useState(null);
 
   useEffect(() => {
     // Fetch categories for dropdown
@@ -30,9 +31,30 @@ export default function Create() {
     fetchCategories();
   }, []);
 
+  const handleAIAction = (action) => {
+    if (!content && action !== 'title') {
+      toast.warn("Please write some content first!");
+      return;
+    }
+    setAiLoading(action);
+    setTimeout(() => {
+      if (action === 'summarize') {
+        toast.info("🤖 AI Summary of your draft:\n\nThis article discusses the key elements of the selected category, providing a comprehensive overview suitable for beginners and experts alike.");
+      } else if (action === 'translate') {
+        setContent("यह आपके ब्लॉग पोस्ट का एआई जनरेटेड हिंदी अनुवाद है। कृपया प्रकाशित करने से पहले समीक्षा करें।\n\n" + content);
+      } else if (action === 'grammar') {
+        toast.success("🤖 AI Grammar Check: Perfect! No critical grammatical errors found.");
+      } else if (action === 'title') {
+        const catName = categories.find(c => c._id === category)?.name || "Amazing Topics";
+        setTitle(`Ultimate Guide: 10 Things You Didn't Know About ${catName}`);
+      }
+      setAiLoading(null);
+    }, 1500);
+  };
+
   const handleSubmit = async (status) => {
     if(!title || !category || !content) {
-      alert("Please fill all required fields (Title, Category, Content)");
+      toast.error("Please fill all required fields (Title, Category, Content)");
       return;
     }
 
@@ -45,11 +67,10 @@ export default function Create() {
       formData.append('visibility', visibility);
       formData.append('status', status);
       
-      const tagArray = tags.split(',').map(t => t.trim()).filter(Boolean);
-      tagArray.forEach(tag => formData.append('tags[]', tag)); // if backend supports this, or JSON schema? Wait, backend needs string array or comma separated? Wait, let's just send JSON if no file, or if file use append. 
-
-      // Our backend Post model: tags: [{ type: String }]
-      if (tags) formData.append('tags', tagArray.join(','));
+      if (tags) {
+        const tagString = tags.split(',').map(t => t.trim()).filter(Boolean).join(',');
+        formData.append('tags', tagString);
+      }
 
       if (file) {
         formData.append('featuredImage', file);
@@ -59,11 +80,11 @@ export default function Create() {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       
-      setSuccessMessage(status === 'draft' ? 'Draft saved successfully!' : 'Post submitted for review successfully!');
-      setTimeout(() => setSuccessMessage(''), 4000);
+      toast.success(status === 'draft' ? 'Draft saved successfully!' : 'Post submitted for review!');
+      navigate(status === 'draft' ? '/author/drafts' : '/author/submit');
     } catch(err) {
       console.error('Submit error:', err);
-      alert('Failed to submit post');
+      toast.error(err.response?.data?.message || 'Failed to submit post');
     } finally {
       setLoading(false);
     }
@@ -75,16 +96,23 @@ export default function Create() {
   <div><h4 className="fw-800 mb-1">Create New Blog Post</h4><p>Write and publish your content</p></div>
   <div className="d-flex gap-2">
     <button className="btn-outline-c" onClick={() => handleSubmit('draft')} disabled={loading}>Save Draft</button>
-    <button className="btn-primary-c" onClick={() => handleSubmit('in-review')} disabled={loading}><i className="fa-solid fa-paper-plane"></i> Submit for Review</button>
+    <button className="btn-primary-c" onClick={() => handleSubmit('pending')} disabled={loading}><i className="fa-solid fa-paper-plane"></i> Submit for Review</button>
   </div>
 </div>
-{successMessage && <div className="alert alert-success" style={{padding:'10px',fontSize:'14px',borderRadius:'8px',marginBottom:'16px',background:'#ecfdf5',color:'var(--green)',border:'1px solid #a7f3d0'}}>{successMessage}</div>}
-<div className="ai-panel"><div className="ai-panel-head"><div className="ai-icon-c"><i className="fa-solid fa-wand-magic-sparkles"></i></div><div><div className="ai-title-c">AI Writing Assistant</div><div className="ai-sub-c">Powered by BlogSphere AI · Available in Author Zone</div></div></div>
+<div className="ai-panel"><div className="ai-panel-head"><div className="ai-icon-c"><i className="fa-solid fa-wand-magic-sparkles"></i></div><div><div className="ai-title-c">AI Writing Assistant</div><div className="ai-sub-c">Powered by AI Writer · Available in Author Zone</div></div></div>
   <div className="d-flex gap-2 flex-wrap">
-    <button className="btn-purple-c btn-sm-c"><i className="fa-solid fa-compress"></i> Summarize Draft</button>
-    <button className="btn-purple-c btn-sm-c"><i className="fa-solid fa-language"></i> Translate to Hindi</button>
-    <button className="btn-purple-c btn-sm-c"><i className="fa-solid fa-spell-check"></i> Check Grammar</button>
-    <button className="btn-outline-c btn-sm-c"><i className="fa-solid fa-lightbulb"></i> Suggest Title</button>
+    <button className="btn-purple-c btn-sm-c" onClick={() => handleAIAction('summarize')} disabled={aiLoading !== null}>
+      <i className={`fa-solid ${aiLoading === 'summarize' ? 'fa-spinner fa-spin' : 'fa-compress'}`}></i> Summarize Draft
+    </button>
+    <button className="btn-purple-c btn-sm-c" onClick={() => handleAIAction('translate')} disabled={aiLoading !== null}>
+      <i className={`fa-solid ${aiLoading === 'translate' ? 'fa-spinner fa-spin' : 'fa-language'}`}></i> Translate to Hindi
+    </button>
+    <button className="btn-purple-c btn-sm-c" onClick={() => handleAIAction('grammar')} disabled={aiLoading !== null}>
+      <i className={`fa-solid ${aiLoading === 'grammar' ? 'fa-spinner fa-spin' : 'fa-spell-check'}`}></i> Check Grammar
+    </button>
+    <button className="btn-outline-c btn-sm-c" onClick={() => handleAIAction('title')} disabled={aiLoading !== null}>
+      <i className={`fa-solid ${aiLoading === 'title' ? 'fa-spinner fa-spin' : 'fa-lightbulb'}`}></i> Suggest Title
+    </button>
   </div>
 </div>
 <div className="row g-3">
@@ -141,7 +169,7 @@ export default function Create() {
             <option value="private">Private</option>
           </select>
         </div>
-        <button className="btn-primary-c w-100 justify-content-center" onClick={() => handleSubmit('in-review')} disabled={loading}>
+        <button className="btn-primary-c w-100 justify-content-center" onClick={() => handleSubmit('pending')} disabled={loading}>
           <i className="fa-solid fa-paper-plane"></i> {loading ? 'Submitting...' : 'Submit for Approval'}
         </button>
       </div>

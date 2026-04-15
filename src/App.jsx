@@ -1,5 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import './App.css';
 
 // Layout
@@ -36,12 +38,14 @@ import ReaderProfile from './components/reader/Profile';
 export default function App() {
   return (
     <BrowserRouter>
+      <ToastContainer position="bottom-right" autoClose={3000} />
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<Register />} />
         
         {/* Admin Routes */}
         <Route path="/admin" element={<ZoneLayout zone="admin"><AdminDashboard /></ZoneLayout>} />
+        <Route path="/admin/blog/:id" element={<ZoneLayout zone="admin"><ReaderBlog /></ZoneLayout>} />
         <Route path="/admin/analytics" element={<ZoneLayout zone="admin"><AdminAnalytics /></ZoneLayout>} />
         <Route path="/admin/categories" element={<ZoneLayout zone="admin"><AdminCategories /></ZoneLayout>} />
         <Route path="/admin/comments" element={<ZoneLayout zone="admin"><AdminComments /></ZoneLayout>} />
@@ -56,6 +60,7 @@ export default function App() {
         <Route path="/author/drafts" element={<ZoneLayout zone="author"><AuthorDrafts /></ZoneLayout>} />
         <Route path="/author/media" element={<ZoneLayout zone="author"><AuthorMedia /></ZoneLayout>} />
         <Route path="/author/submit" element={<ZoneLayout zone="author"><AuthorSubmit /></ZoneLayout>} />
+        <Route path="/author/blog/:id" element={<ZoneLayout zone="author"><ReaderBlog /></ZoneLayout>} />
 
         {/* Reader Routes */}
         <Route path="/reader" element={<ZoneLayout zone="reader"><ReaderDashboard /></ZoneLayout>} />

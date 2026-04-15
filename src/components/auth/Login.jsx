@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import api from '../../api';
 
 export default function Login() {
@@ -14,6 +15,7 @@ export default function Login() {
 
   const handleLogin = async () => {
     if(!email || !password) {
+      toast.warn('Please provide email and password');
       setError('Please provide email and password');
       return;
     }
@@ -26,11 +28,14 @@ export default function Login() {
       });
 
       if(response.data.success) {
-        localStorage.setItem('user', JSON.stringify(response.data.data));
+        sessionStorage.setItem('user', JSON.stringify(response.data.data));
+        toast.success(`Welcome back, ${response.data.data.name}!`);
         navigate(`/${role}`);
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed. Please try again.');
+      const msg = err.response?.data?.message || 'Login failed. Please try again.';
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -42,7 +47,7 @@ export default function Login() {
       <div className="row align-items-center justify-content-center">
         {/* LEFT */}
         <div className="col-lg-5 d-none d-lg-block text-white left-panel">
-          <h1 className="fw-bold mb-3" style={{ fontSize: '42px' }}>BlogSphere</h1>
+          <h1 className="fw-bold mb-3" style={{ fontSize: '32px' }}>Blogging and Content Publishing System</h1>
           <p className="text-info mb-4 fs-5">Write • Share • Inspire</p>
           <div className="mb-3"><i className="fas fa-pen me-2"></i>Create & publish blogs</div>
           <div className="mb-3"><i className="fas fa-users me-2"></i>Connect with readers</div>

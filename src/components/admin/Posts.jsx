@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import api from '../../api';
 
 export default function Posts() {
@@ -34,42 +35,21 @@ export default function Posts() {
   const handleAction = async (postId, action) => {
     try {
       if(action === 'approve') {
-        const res = await api.put(`/admin/posts/${postId}/approve`, {});
-        if(res.data.success) {
-          alert("Post approved successfully!");
-        }
+        await api.put(`/admin/posts/${postId}/approve`);
       } else if (action === 'reject') {
-        const res = await api.put(`/admin/posts/${postId}/reject`, {});
-        if(res.data.success) {
-          alert("Post rejected successfully!");
-        }
+        await api.put(`/admin/posts/${postId}/reject`);
       } else if (action === 'delete') {
         if(window.confirm("Delete this post permanently?")) {
-          const res = await api.delete(`/admin/posts/${postId}`);
-          if(res.data.success) {
-             alert("Post deleted successfully!");
-          }
+          await api.delete(`/admin/posts/${postId}`);
         } else {
           return;
         }
       }
+      toast.success(`Post ${action}d successfully`);
       fetchPosts();
     } catch (error) {
       console.error(`Error performing ${action} on post:`, error);
-      alert(`Error: ${error.response?.data?.message || 'Failed to complete action'}`);
-    }
-  };
-
-  const handleStatusChange = async (postId, newStatus) => {
-    try {
-      const res = await api.put(`/admin/posts/${postId}/status`, { status: newStatus });
-      if(res.data.success) {
-        alert("Status updated successfully!");
-        fetchPosts();
-      }
-    } catch (error) {
-      console.error('Error updating status:', error);
-      alert(`Error: ${error.response?.data?.message || 'Failed to update status'}`);
+      toast.error(`Error: Failed to ${action} post`);
     }
   };
 
@@ -121,34 +101,21 @@ export default function Posts() {
               <tr key={post._id}>
                 <td>{String(index + 1).padStart(2, '0')}</td>
                 <td>
-                  <div className="fw-600" onClick={() => navigate(`/reader/blog/${post._id}`)} style={{cursor: 'pointer'}}>{post.title}</div>
+                  <div className="fw-600" onClick={() => navigate(`/admin/blog/${post._id}`)} style={{cursor: 'pointer'}}>{post.title}</div>
                   <div style={{fontSize: '11px', color: 'var(--gray-400)'}}>{wordCount} words · {readTime} min read</div>
                 </td>
                 <td>{post.author?.name || 'Unknown'}</td>
                 <td><span className="tag-c">{post.category?.name || 'Uncategorized'}</span></td>
                 <td>{new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
+                <td><span className={`badge-c ${statusClass}`}>{post.status.charAt(0).toUpperCase() + post.status.slice(1).replace('-', ' ')}</span></td>
                 <td>
-                  <select 
-                    className={`form-select form-select-sm badge-c ${statusClass}`} 
-                    value={post.status} 
-                    onChange={(e) => handleStatusChange(post._id, e.target.value)}
-                    style={{cursor: 'pointer', display: 'inline-block', minWidth: '110px'}}
-                  >
-                    <option value="draft">Draft</option>
-                    <option value="pending">Pending</option>
-                    <option value="in-review">In Review</option>
-                    <option value="published">Published</option>
-                    <option value="rejected">Rejected</option>
-                  </select>
-                </td>
-                <td>
-                  {(post.status === 'pending' || post.status === 'in-review') && (
-                    <>
-                      <button className="btn-success-c me-1" onClick={() => handleAction(post._id, 'approve')} title="Approve"><i className="fa-solid fa-check"></i> Approve</button>
-                      <button className="btn-danger-c me-1" onClick={() => handleAction(post._id, 'reject')} title="Reject"><i className="fa-solid fa-xmark"></i> Reject</button>
-                    </>
+                  {post.status !== 'published' && (
+                    <button className="btn-success-c me-1" onClick={() => handleAction(post._id, 'approve')} title="Approve"><i className="fa-solid fa-check"></i></button>
                   )}
-                  {post.status === 'published' && <button className="btn-outline-c btn-sm-c me-1" onClick={() => navigate(`/reader/blog/${post._id}`)}>View</button>}
+                  {(post.status === 'pending' || post.status === 'in-review') && (
+                    <button className="btn-danger-c me-1" onClick={() => handleAction(post._id, 'reject')} title="Reject"><i className="fa-solid fa-xmark"></i></button>
+                  )}
+                  {post.status === 'published' && <button className="btn-outline-c btn-sm-c me-1" onClick={() => navigate(`/admin/blog/${post._id}`)}>View</button>}
                   <button className="btn-outline-c btn-sm-c" style={{borderColor: 'var(--red)', color: 'var(--red)'}} onClick={() => handleAction(post._id, 'delete')} title="Delete"><i className="fa-solid fa-trash"></i></button>
                 </td>
               </tr>

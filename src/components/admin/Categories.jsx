@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import api from '../../api';
 
 export default function Categories() {
@@ -45,11 +46,12 @@ export default function Categories() {
       if (response.data.success) {
         setShowModal(false);
         setFormData({ name: '', slug: '', postCount: 0, status: 'active' });
+        toast.success('Category created successfully');
         fetchCategories();
       }
     } catch (error) {
       console.error('Error creating category:', error);
-      alert(error.response?.data?.message || 'Failed to create category');
+      toast.error(error.response?.data?.message || 'Failed to create category');
     } finally {
       setSubmitting(false);
     }
@@ -59,9 +61,11 @@ export default function Categories() {
     if (window.confirm("Are you sure you want to delete this category?")) {
       try {
         await api.delete(`/admin/categories/${id}`);
+        toast.success('Category deleted');
         fetchCategories();
       } catch (error) {
         console.error('Error deleting category:', error);
+        toast.error('Failed to delete category');
       }
     }
   };

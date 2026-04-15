@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import api from '../../api';
 
 export default function Users() {
@@ -35,9 +36,11 @@ export default function Users() {
       } else if (action === 'restore') {
         await api.put(`/admin/users/${userId}/restore`);
       }
+      toast.success(`User ${action}ned/success!`);
       fetchUsers();
     } catch (error) {
       console.error(`Error performing ${action} on user:`, error);
+      toast.error(`Failed to ${action} user`);
     }
   };
 

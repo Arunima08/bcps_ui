@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import api from '../../api';
 
 export default function Drafts() {
@@ -45,7 +46,7 @@ export default function Drafts() {
           <td>{new Date(draft.updatedAt).toLocaleDateString()}</td>
           <td>{wordCount}</td>
           <td><span className="badge-c badge-draft">Draft</span></td>
-          <td><button onClick={() => alert("Edit Draft capability to be connected to Editor component")} className="btn-primary-c btn-sm-c">Edit</button></td>
+          <td><button onClick={() => toast.info("Edit Draft capability coming soon")} className="btn-primary-c btn-sm-c">Edit</button></td>
         </tr>
       );
     })
