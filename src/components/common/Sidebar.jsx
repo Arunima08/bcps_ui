@@ -51,7 +51,7 @@ export default function Sidebar({ zone, sidebarOpen, closeSidebar }) {
           <Link to="/admin/posts" className={iLink('posts')} onClick={closeSidebar}>
             <span className="nav-icon-c"><i className="fa-solid fa-file-pen"></i></span>Post Approval<span className="nav-badge-c amber">7</span>
           </Link>
-          <div className="sidebar-section-label mt-2">Insights</div>
+          {/* <div className="sidebar-section-label mt-2">Insights</div> */}
         </div>
       )}
 

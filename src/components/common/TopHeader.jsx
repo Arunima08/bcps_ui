@@ -68,7 +68,7 @@ export default function TopHeader({ zone, toggleSidebar }) {
       </div>
       <div className="d-flex align-items-center gap-2">
         {/* Search */}
-        <div className="position-relative">
+        {/* <div className="position-relative">
           <button className="header-btn-c" onClick={() => { setSearchOpen(!searchOpen); setNotifOpen(false); setSettingsOpen(false); setDropdownOpen(false); }}>
             <i className="fa-solid fa-magnifying-glass"></i>
           </button>
@@ -76,8 +76,8 @@ export default function TopHeader({ zone, toggleSidebar }) {
             <div className="dropdown-menu show position-absolute end-0 mt-2 shadow-sm p-2" style={{ minWidth: '250px', border: '1px solid var(--gray-200)', borderRadius: '8px', zIndex: 1050, background: '#fff' }}>
               <input type="text" className="form-control-c w-100" placeholder="Search..." style={{padding:'8px 12px', borderRadius:'6px', border:'1px solid var(--gray-200)', fontSize: '14px', outline: 'none'}} autoFocus />
             </div>
-          )}
-        </div>
+          )}fkhjdfjkhgkdj
+        </div> */}
 
         {/* Notifications */}
         <div className="position-relative">
@@ -113,7 +113,7 @@ export default function TopHeader({ zone, toggleSidebar }) {
                   <input className="form-check-input" type="checkbox" style={{cursor:'pointer'}} checked={isDarkMode} readOnly />
                 </div>
               </div>
-              <div className="dropdown-item d-flex align-items-center gap-2" style={{ padding: '8px 10px', fontSize: '13px', cursor: 'default', borderRadius: '6px', color: 'var(--gray-900)' }} onClick={(e) => e.stopPropagation()}>
+              {/* <div className="dropdown-item d-flex align-items-center gap-2" style={{ padding: '8px 10px', fontSize: '13px', cursor: 'default', borderRadius: '6px', color: 'var(--gray-900)' }} onClick={(e) => e.stopPropagation()}>
                 <i className="fa-solid fa-globe text-muted"></i> Language
                 <select 
                   className="form-select ms-auto mb-0" 
@@ -130,7 +130,7 @@ export default function TopHeader({ zone, toggleSidebar }) {
                   <option value="Spanish" style={{color: '#000'}}>Spanish</option>
                   <option value="French" style={{color: '#000'}}>French</option>
                 </select>
-              </div>
+              </div> */}
             </div>
           )}
         </div>
