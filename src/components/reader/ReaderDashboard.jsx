@@ -40,49 +40,96 @@ export default function ReaderDashboard() {
   const emojis = ['💻', '🌱', '🧠', '💰', '🎨', '📱'];
 
   return (
-    <> 
-<div className="d-flex align-items-start justify-content-between mb-4 flex-wrap gap-3">
-  <div><h4 className="fw-800 mb-1">Reader Dashboard</h4><p style={{color:'var(--gray-400)',fontSize:'13px'}}>Discover and follow your favorite authors</p></div>
-  <span className="zone-strip reader"><i className="fa-solid fa-book-open"></i> Reader Zone</span>
-</div>
-<div className="row g-3 mb-4">
-  <div className="col-sm-6 col-xl-4"><div className="stat-card-c"><div className="d-flex justify-content-between align-items-center mb-3"><div className="stat-icon-c" style={{background:'var(--blue-50)',color:'var(--blue-600)'}}><i className="fa-solid fa-users"></i></div></div><div className="stat-val-c">{stats?.followingCount || 0}</div><div className="stat-label-c">Following Authors</div></div></div>
-  <div className="col-sm-6 col-xl-4"><div className="stat-card-c"><div className="d-flex justify-content-between align-items-center mb-3"><div className="stat-icon-c" style={{background:'#ecfdf5',color:'var(--green)'}}><i className="fa-solid fa-heart"></i></div></div><div className="stat-val-c">{stats?.likedPosts || 0}</div><div className="stat-label-c">Liked Posts</div></div></div>
- 
-  <div className="col-sm-6 col-xl-4"><div className="stat-card-c"><div className="d-flex justify-content-between align-items-center mb-3"><div className="stat-icon-c" style={{background:'#f5f3ff',color:'var(--purple)'}}><i className="fa-solid fa-bell"></i></div></div><div className="stat-val-c">{stats?.newNotifications || 0}</div><div className="stat-label-c">New Notifications</div></div></div>
-</div>
-<h5 className="fw-700 mb-3" style={{fontSize:'16px'}}>Recent Posts from Followed Authors</h5>
-{recentPosts && recentPosts.length > 0 ? (
-<div className="blog-grid">
-  {recentPosts.map((post, index) => {
-    const wordCount = post.content ? post.content.split(' ').length : 0;
-    const readTime = Math.ceil(wordCount / 200) || 1;
-    return (
-      <Link key={post._id} to={`/reader/blog/${post._id}`} className="blog-card text-decoration-none">
-        <div className="blog-thumb" style={{background: gradients[index % gradients.length]}}>{emojis[index % emojis.length]}</div>
-        <div className="blog-body">
-          <div className="blog-cat">{post.category?.name || 'Uncategorized'}</div>
-          <div className="blog-title">{post.title}</div>
-          <div className="blog-meta">
-            <span>By {post.author?.name || 'Unknown'}</span>
-            <span>{new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} · {readTime} min</span>
+    <div className="main-wrap-inner p-4">
+      {/* HEADER ACTION BAR */}
+      <div className="d-flex align-items-center justify-content-between mb-5 flex-wrap gap-3">
+        <div>
+          <h2 className="fw-800 mb-1" style={{ letterSpacing: '-1px' }}>Reader Dashboard</h2>
+          <p className="text-muted mb-0">Discover top stories and follow your favorite authors</p>
+        </div>
+        <div>
+          <Link to="/reader/browse" className="btn-primary-c py-3 px-4">
+            <i className="fas fa-search me-2"></i> Browse Content
+          </Link>
+        </div>
+      </div>
+
+      {/* STATS SECTION */}
+      <div className="row g-4 mb-5">
+        <div className="col-sm-6 col-xl-4">
+          <div className="stat-card-c">
+            <div className="stat-icon-c blue"><i className="fas fa-user-check"></i></div>
+            <div className="stat-val-c">{stats?.followingCount || 0}</div>
+            <div className="stat-label-c">Following Authors</div>
           </div>
         </div>
-        <div className="blog-actions">
-          <button className="btn-outline-c btn-sm-c"><i className="fa-solid fa-heart"></i> {post.likes?.length || 0}</button>
-          <button className="btn-outline-c btn-sm-c"><i className="fa-solid fa-share-nodes"></i></button>
+        <div className="col-sm-6 col-xl-4">
+          <div className="stat-card-c">
+            <div className="stat-icon-c green"><i className="fas fa-heart"></i></div>
+            <div className="stat-val-c">{stats?.likedPosts || 0}</div>
+            <div className="stat-label-c">Liked Posts</div>
+          </div>
         </div>
-      </Link>
-    );
-  })}
-</div>
-) : (
-  <div className="card-custom p-4 text-center text-muted">
-    <i className="fa-solid fa-book-open fs-1 mb-3 d-block" style={{color:'var(--gray-300)'}}></i>
-    <p>No posts from followed authors yet.</p>
-    <Link to="/reader/browse" className="btn-primary-c">Browse Posts</Link>
-  </div>
-)}
-    </>
+        <div className="col-sm-6 col-xl-4">
+          <div className="stat-card-c">
+            <div className="stat-icon-c purple"><i className="fas fa-bell"></i></div>
+            <div className="stat-val-c">{stats?.newNotifications || 0}</div>
+            <div className="stat-label-c">New Notifications</div>
+          </div>
+        </div>
+      </div>
+
+      <h5 className="fw-800 mb-4" style={{ fontSize: '18px', letterSpacing: '-0.5px' }}>
+        <i className="fas fa-stream me-2 text-primary"></i> Recent from Followed Authors
+      </h5>
+
+      {recentPosts && recentPosts.length > 0 ? (
+        <div className="blog-grid">
+          {recentPosts.map((post, index) => {
+            const wordCount = post.content ? post.content.split(' ').length : 0;
+            const readTime = Math.ceil(wordCount / 200) || 1;
+            return (
+              <Link key={post._id} to={`/reader/blog/${post._id}`} className="blog-card text-decoration-none">
+                <div className="blog-thumb" style={{ background: gradients[index % gradients.length], fontSize: '40px' }}>
+                  {emojis[index % emojis.length]}
+                </div>
+                <div className="blog-body p-4">
+                  <div className="blog-cat mb-2">{post.category?.name || 'Uncategorized'}</div>
+                  <div className="blog-title h5 fw-bold mb-3" style={{ color: '#1e293b', lineSize: '1.4' }}>{post.title}</div>
+                  <div className="blog-meta d-flex justify-content-between align-items-center">
+                    <div className="d-flex align-items-center gap-2">
+                        <div className="avatar-sm" style={{ width: '24px', height: '24px', background: '#ff5722', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', color: '#fff', fontWeight: 'bold' }}>
+                            {post.author?.name?.charAt(0).toUpperCase()}
+                        </div>
+                        <span style={{ fontSize: '12px', fontWeight: '600', color: '#64748b' }}>{post.author?.name || 'Unknown'}</span>
+                    </div>
+                    <span style={{ fontSize: '11px', color: '#94a3b8' }}>{readTime} min read</span>
+                  </div>
+                </div>
+                <div className="blog-actions p-3 border-top d-flex gap-2">
+                  <button className="btn-outline-c btn-sm-c flex-fill justify-content-center">
+                    <i className="fas fa-heart me-1"></i> {post.likes?.length || 0}
+                  </button>
+                  <button className="btn-outline-c btn-sm-c">
+                    <i className="fas fa-share-alt"></i>
+                  </button>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="card-custom p-5 text-center text-muted">
+          <div className="mb-4" style={{ opacity: 0.2 }}>
+            <i className="fas fa-book-reader" style={{ fontSize: '80px' }}></i>
+          </div>
+          <h5 className="fw-bold text-dark">Your feed is quiet</h5>
+          <p className="mb-4">Follow authors to see their latest stories here.</p>
+          <Link to="/reader/browse" className="btn-primary-c">
+            Explore Authors
+          </Link>
+        </div>
+      )}
+    </div>
   );
 }

@@ -70,91 +70,84 @@ export default function Register() {
   };
 
   return (
-    <div className="auth-bg d-flex align-items-center justify-content-center min-vh-100 py-5" style={{ overflowX: 'hidden' }}>
-      {/* ORBS */}
-      <div className="auth-orb" style={{ width: '350px', height: '350px', background: '#6366f1', top: '-120px', right: '-120px' }}></div>
-      <div className="auth-orb" style={{ width: '250px', height: '250px', background: '#818cf8', bottom: '-100px', left: '-100px' }}></div>
-      
-      <div className="container">
-        <div className="row align-items-center justify-content-center">
-          
-          {/* LEFT TEXT PANEL */}
-          <div className="col-lg-5 d-none d-lg-block text-white">
-            <h1 className="fw-bold mb-3" style={{ fontSize: '32px' }}>Blogging and Content Publishing System</h1>
-            <p className="text-info mb-4 fs-5">Write • Share • Inspire</p>
-            <div className="mb-3"><i className="fas fa-pen me-2"></i>Create & publish blogs</div>
-            <div className="mb-3"><i className="fas fa-users me-2"></i>Connect with readers</div>
-            <div><i className="fas fa-chart-line me-2"></i>Track your growth</div>
+    <div className="auth-bg">
+      <div className="auth-card" style={{ maxWidth: '1100px' }}>
+        {/* LEFT PANEL */}
+        <div className="left-panel">
+          <div className="left-panel-content">
+            <h1 className="fw-bold mb-3">Blogging and Content Publishing System</h1>
+            <p className="mb-5 fs-5">Start your blogging journey today</p>
+            <ul className="auth-features-list">
+              <li><i className="fas fa-check-circle"></i> Professional Profile</li>
+              <li><i className="fas fa-check-circle"></i> Global Content Reach</li>
+              <li><i className="fas fa-check-circle"></i> Real-time Analytics</li>
+              <li><i className="fas fa-check-circle"></i> Custom Dashboard</li>
+            </ul>
           </div>
+        </div>
 
-          {/* RIGHT REGISTER FORM */}
-          <div className="col-lg-5 col-md-8 col-sm-10 col-12">
-            <div className="auth-card shadow-lg p-4 p-md-5">
-              
-              <div className="d-flex align-items-center gap-3 mb-3">
-                <div className="bg-primary text-white d-flex align-items-center justify-content-center rounded" style={{ width: '50px', height: '50px' }}>
-                  <i className="fas fa-blog"></i>
-                </div>
-                <div>
-                  <h5 className="fw-bold mb-0">Blogging System</h5>
-                  <small className="text-primary">Blogging Platform</small>
-                </div>
-              </div>
+        {/* FORM PANEL */}
+        <div className="auth-form-container" style={{ padding: '40px' }}>
+          <h2 className="fw-bold mb-2">Create Account</h2>
+          <p className="text-muted mb-4">Fill in the details to get started</p>
 
-              <h4 className="fw-bold mb-1">Create your account</h4>
-              <p className="text-muted mb-3">Start your blogging journey</p>
+          {error && <div className="alert alert-danger p-2 small">{error}</div>}
 
-              {error && <div className="alert alert-danger" style={{padding: '10px', fontSize: '14px', borderRadius: '4px'}}>{error}</div>}
-
-              <div className="mb-2">
-                <label className="form-label">Name</label>
-                <input type="text" className="form-input" placeholder="Your full name" name="name" value={formData.name} onChange={handleChange} />
-              </div>
-              <div className="mb-2">
-                <label className="form-label">Username</label>
-                <input type="text" className="form-input" placeholder="@username" name="username" value={formData.username} onChange={handleChange} />
-              </div>
-              <div className="mb-2">
-                <label className="form-label">Email</label>
-                <input type="email" className="form-input" placeholder="you@example.com" name="email" value={formData.email} onChange={handleChange} />
-              </div>
-              <div className="mb-2">
-                <label className="form-label">Password</label>
-                <input type="password" className="form-input" placeholder="••••••" name="password" value={formData.password} onChange={handleChange} />
-              </div>
-              <div className="mb-2">
-                <label className="form-label">Role</label>
-                <select className="form-input" name="role" value={formData.role} onChange={handleChange} style={{ height: 'auto', padding: '10px 15px' }}>
-                  <option value="reader">Reader</option>
-                  <option value="author">Author</option>
-                </select>
-              </div>
-              <div className="mb-2">
-                <label className="form-label">Profile Picture</label>
-                <input type="file" className="form-input" accept="image/*" onChange={(e) => setProfilePic(e.target.files[0])} />
-              </div>
-              <div className="mb-2">
-                <label className="form-label">Bio</label>
-                <textarea className="form-input" rows="2" placeholder="Write something..." name="bio" value={formData.bio} onChange={handleChange}></textarea>
-              </div>
-
-              <div className="form-check mb-3">
-                <input className="form-check-input" type="checkbox" checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)} />
-                <label className="form-check-label small">
-                  I agree to Terms & Conditions
-                </label>
-              </div>
-
-              <button className="btn-main mb-2" onClick={handleRegister} disabled={loading}>
-                <i className="fas fa-user-plus me-2"></i>{loading ? 'Creating...' : 'Create Account'}
-              </button>
-
-              <p className="text-center text-muted small">
-                Already have an account? <Link to="/" className="text-primary fw-semibold">Login</Link>
-              </p>
-
+          <div className="row g-3 mb-3">
+            <div className="col-md-6">
+              <label className="form-label-c mb-2">Full Name</label>
+              <input type="text" className="form-input" placeholder="John Doe" name="name" value={formData.name} onChange={handleChange} />
+            </div>
+            <div className="col-md-6">
+              <label className="form-label-c mb-2">Username</label>
+              <input type="text" className="form-input" placeholder="@johndoe" name="username" value={formData.username} onChange={handleChange} />
             </div>
           </div>
+
+          <div className="row g-3 mb-3">
+            <div className="col-md-6">
+              <label className="form-label-c mb-2">Email Address</label>
+              <input type="email" className="form-input" placeholder="john@example.com" name="email" value={formData.email} onChange={handleChange} />
+            </div>
+            <div className="col-md-6">
+              <label className="form-label-c mb-2">Password</label>
+              <input type="password" className="form-input" placeholder="••••••••" name="password" value={formData.password} onChange={handleChange} />
+            </div>
+          </div>
+
+          <div className="row g-3 mb-3">
+            <div className="col-md-6">
+              <label className="form-label-c mb-2">Select Role</label>
+              <select className="form-input" name="role" value={formData.role} onChange={handleChange}>
+                <option value="reader">Reader</option>
+                <option value="author">Author</option>
+              </select>
+            </div>
+            <div className="col-md-6">
+              <label className="form-label-c mb-2">Profile Picture</label>
+              <input type="file" className="form-input" accept="image/*" onChange={(e) => setProfilePic(e.target.files[0])} />
+            </div>
+          </div>
+
+          <div className="mb-4">
+            <label className="form-label-c mb-2">Short Bio</label>
+            <textarea className="form-input" rows="2" placeholder="Tell us about yourself..." name="bio" value={formData.bio} onChange={handleChange}></textarea>
+          </div>
+
+          <div className="form-check mb-4">
+            <input className="form-check-input" type="checkbox" checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)} id="terms" />
+            <label className="form-check-label small text-muted" htmlFor="terms">
+              I agree to the <span className="text-primary fw-bold">Terms & Conditions</span>
+            </label>
+          </div>
+
+          <button className="btn-main mb-3" onClick={handleRegister} disabled={loading}>
+            {loading ? 'Creating Account...' : 'Get Started'}
+          </button>
+
+          <p className="text-center text-muted small">
+            Already have an account? <Link to="/login" className="text-primary fw-bold">Sign In</Link>
+          </p>
         </div>
       </div>
     </div>

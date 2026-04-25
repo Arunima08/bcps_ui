@@ -68,19 +68,26 @@ export default function Comments() {
           </div>
           <div className="flex-grow-1">
             <div className="notif-text">
-              <strong>{comment.user?.name || 'Guest'}</strong> on "<Link to={`/reader/blog/${comment.post?._id}`}>{comment.post?.title || 'Unknown Post'}</Link>" — "{comment.text}"
+              <strong>{comment.user?.name || 'Guest'}</strong> on "<Link to={`/author/blog/${comment.post?._id}`}>{comment.post?.title || 'Unknown Post'}</Link>" — "{comment.text}"
             </div>
             <div className="notif-time">{new Date(comment.createdAt).toLocaleString()}</div>
             
             {comment.replies && comment.replies.length > 0 && (
-              <div className="mt-2 pl-3 border-start ps-3 py-1">
+              <div className="mt-2 border-start ps-3 py-1" style={{borderColor: 'var(--gray-200)', borderLeftWidth: '2px'}}>
                 {comment.replies.map((reply, i) => (
-                  <div key={i} className="notif-text text-muted mb-1">
-                    <strong>You replied:</strong> {reply.text}
+                  <div key={i} className="notif-text text-muted mb-2">
+                    <div className="d-flex align-items-center gap-2 mb-1">
+                      <div className="avatar-c d-flex align-items-center justify-content-center text-white fw-bold" style={{width:'20px',height:'20px',fontSize:'9px', background: 'var(--gray-400)'}}>
+                        {reply.user?.name?.charAt(0) || 'U'}
+                      </div>
+                      <span style={{fontSize: '13px'}}><strong>{reply.user?.name || 'User'}</strong> — {new Date(reply.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                    </div>
+                    <div style={{paddingLeft: '28px'}}>{reply.text}</div>
                   </div>
                 ))}
               </div>
             )}
+
 
             <div className="d-flex gap-2 mt-2">
               <input 

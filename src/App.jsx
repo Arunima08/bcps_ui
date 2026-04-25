@@ -8,6 +8,7 @@ import './App.css';
 import ZoneLayout from './layouts/ZoneLayout';
 
 // Public
+import LandingPage from './components/common/LandingPage';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 
@@ -40,7 +41,8 @@ export default function App() {
     <BrowserRouter>
       <ToastContainer position="bottom-right" autoClose={3000} />
       <Routes>
-        <Route path="/" element={<Login />} />
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         
         {/* Admin Routes */}
@@ -52,6 +54,7 @@ export default function App() {
         <Route path="/admin/media" element={<ZoneLayout zone="admin"><AdminMedia /></ZoneLayout>} />
         <Route path="/admin/posts" element={<ZoneLayout zone="admin"><AdminPosts /></ZoneLayout>} />
         <Route path="/admin/users" element={<ZoneLayout zone="admin"><AdminUsers /></ZoneLayout>} />
+        <Route path="/admin/notifications" element={<ZoneLayout zone="admin"><ReaderNotifications /></ZoneLayout>} />
 
         {/* Author Routes */}
         <Route path="/author" element={<ZoneLayout zone="author"><AuthorDashboard /></ZoneLayout>} />
@@ -61,6 +64,7 @@ export default function App() {
         <Route path="/author/media" element={<ZoneLayout zone="author"><AuthorMedia /></ZoneLayout>} />
         <Route path="/author/submit" element={<ZoneLayout zone="author"><AuthorSubmit /></ZoneLayout>} />
         <Route path="/author/blog/:id" element={<ZoneLayout zone="author"><ReaderBlog /></ZoneLayout>} />
+        <Route path="/author/notifications" element={<ZoneLayout zone="author"><ReaderNotifications /></ZoneLayout>} />
 
         {/* Reader Routes */}
         <Route path="/reader" element={<ZoneLayout zone="reader"><ReaderDashboard /></ZoneLayout>} />

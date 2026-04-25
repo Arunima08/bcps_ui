@@ -35,11 +35,35 @@ export default function AuthorDashboard() {
   <div><h4 className="fw-800 mb-1">Author Dashboard</h4><p style={{color:'var(--gray-400)',fontSize:'13px'}}>Manage your posts and content</p></div>
   <span className="zone-strip author"><i className="fa-solid fa-pen-nib"></i> Author Zone</span>
 </div>
-<div className="row g-3 mb-4">
-  <div className="col-sm-6 col-xl-3"><div className="stat-card-c"><div className="d-flex justify-content-between align-items-center mb-3"><div className="stat-icon-c" style={{background:'var(--blue-50)',color:'var(--blue-600)'}}><i className="fa-solid fa-newspaper"></i></div></div><div className="stat-val-c">{stats?.publishedPosts || 0}</div><div className="stat-label-c">Published Posts</div></div></div>
-  <div className="col-sm-6 col-xl-3"><div className="stat-card-c"><div className="d-flex justify-content-between align-items-center mb-3"><div className="stat-icon-c" style={{background:'#fffbeb',color:'var(--amber)'}}><i className="fa-solid fa-file"></i></div></div><div className="stat-val-c">{stats?.totalComments || 0}</div><div className="stat-label-c">Total Comments</div></div></div>
-  <div className="col-sm-6 col-xl-3"><div className="stat-card-c"><div className="d-flex justify-content-between align-items-center mb-3"><div className="stat-icon-c" style={{background:'#ecfdf5',color:'var(--green)'}}><i className="fa-solid fa-heart"></i></div></div><div className="stat-val-c">{stats?.totalLikes || 0}</div><div className="stat-label-c">Total Likes</div></div></div>
-  <div className="col-sm-6 col-xl-3"><div className="stat-card-c"><div className="d-flex justify-content-between align-items-center mb-3"><div className="stat-icon-c" style={{background:'#f5f3ff',color:'var(--purple)'}}><i className="fa-solid fa-eye"></i></div></div><div className="stat-val-c">{stats?.totalViews || 0}</div><div className="stat-label-c">Total Views</div></div></div>
+<div className="row g-4 mb-5">
+  <div className="col-sm-6 col-xl-3">
+    <div className="stat-card-c">
+      <div className="stat-icon-c blue"><i className="fa-solid fa-newspaper"></i></div>
+      <div className="stat-val-c">{stats?.publishedPosts || 0}</div>
+      <div className="stat-label-c">Published Posts</div>
+    </div>
+  </div>
+  <div className="col-sm-6 col-xl-3">
+    <div className="stat-card-c">
+      <div className="stat-icon-c amber"><i className="fa-solid fa-file-lines"></i></div>
+      <div className="stat-val-c">{stats?.totalComments || 0}</div>
+      <div className="stat-label-c">Total Comments</div>
+    </div>
+  </div>
+  <div className="col-sm-6 col-xl-3">
+    <div className="stat-card-c">
+      <div className="stat-icon-c green"><i className="fa-solid fa-heart"></i></div>
+      <div className="stat-val-c">{stats?.totalLikes || 0}</div>
+      <div className="stat-label-c">Total Likes</div>
+    </div>
+  </div>
+  <div className="col-sm-6 col-xl-3">
+    <div className="stat-card-c">
+      <div className="stat-icon-c purple"><i className="fa-solid fa-eye"></i></div>
+      <div className="stat-val-c">{stats?.totalViews || 0}</div>
+      <div className="stat-label-c">Total Views</div>
+    </div>
+  </div>
 </div>
 <div className="row g-3">
   <div className="col-lg-6"><div className="card-custom"><div className="card-head-custom"><span className="card-title-c">My Recent Posts</span><Link to="/author/create" className="btn-primary-c btn-sm-c"><i className="fa-solid fa-plus"></i> New Post</Link></div>

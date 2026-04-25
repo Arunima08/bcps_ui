@@ -13,7 +13,7 @@ export default function Notifications() {
 
   const fetchNotifications = async () => {
     try {
-      const response = await api.get('/reader/notifications');
+      const response = await api.get('/common/notifications');
       if (response.data.success) {
         setNotifications(response.data.data);
       }
@@ -26,7 +26,7 @@ export default function Notifications() {
 
   const handleMarkAllRead = async () => {
     try {
-      await api.put('/reader/notifications/read');
+      await api.put('/common/notifications/read');
       setNotifications(notifications.map(n => ({ ...n, isRead: true })));
     } catch (error) {
       console.error('Error marking all read:', error);
@@ -35,7 +35,7 @@ export default function Notifications() {
 
   const handleMarkOneRead = async (id) => {
     try {
-      await api.put(`/reader/notifications/${id}/read`);
+      await api.put(`/common/notifications/${id}/read`);
       setNotifications(notifications.map(n => n._id === id ? { ...n, isRead: true } : n));
     } catch (error) {
       console.error('Error marking notification as read:', error);
@@ -97,7 +97,8 @@ export default function Notifications() {
           className={`notif-item ${!notif.isRead ? 'unread' : ''}`}
           onClick={() => {
             if (!notif.isRead) handleMarkOneRead(notif._id);
-            if (notif.relatedPost?._id) navigate(`/reader/blog/${notif.relatedPost._id}`);
+            const userRole = JSON.parse(sessionStorage.getItem('user'))?.role || 'reader';
+            if (notif.relatedPost?._id) navigate(`/${userRole}/blog/${notif.relatedPost._id}`);
           }}
           style={{cursor: 'pointer'}}
         >

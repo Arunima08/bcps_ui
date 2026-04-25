@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from '../../api';
 
 export default function TopHeader({ zone, toggleSidebar }) {
   const titles = {
@@ -21,6 +22,8 @@ export default function TopHeader({ zone, toggleSidebar }) {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [language, setLanguage] = useState('English');
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('dark-mode');
@@ -32,7 +35,43 @@ export default function TopHeader({ zone, toggleSidebar }) {
     if (savedLang) {
       setLanguage(savedLang);
     }
+    fetchNotifications();
+    // Poll for notifications every minute
+    const interval = setInterval(fetchNotifications, 60000);
+    return () => clearInterval(interval);
   }, []);
+
+  const fetchNotifications = async () => {
+    try {
+      const response = await api.get('/common/notifications');
+      if (response.data.success) {
+        setNotifications(response.data.data);
+        setUnreadCount(response.data.data.filter(n => !n.isRead).length);
+      }
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+    }
+  };
+
+  const handleMarkAllRead = async () => {
+    try {
+      await api.put('/common/notifications/read');
+      setNotifications(notifications.map(n => ({ ...n, isRead: true })));
+      setUnreadCount(0);
+    } catch (error) {
+      console.error('Error marking all read:', error);
+    }
+  };
+
+  const handleMarkOneRead = async (id) => {
+    try {
+      await api.put(`/common/notifications/${id}/read`);
+      setNotifications(notifications.map(n => n._id === id ? { ...n, isRead: true } : n));
+      setUnreadCount(prev => Math.max(0, prev - 1));
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+    }
+  };
 
   const toggleDarkMode = () => {
     const newMode = !isDarkMode;
@@ -83,17 +122,55 @@ export default function TopHeader({ zone, toggleSidebar }) {
         <div className="position-relative">
           <button className="header-btn-c" onClick={() => { setNotifOpen(!notifOpen); setSearchOpen(false); setSettingsOpen(false); setDropdownOpen(false); }}>
             <i className="fa-solid fa-bell"></i>
-            <span className="notif-dot"></span>
+            {unreadCount > 0 && <span className="notif-dot"></span>}
           </button>
           {notifOpen && (
-            <div className="dropdown-menu show position-absolute end-0 mt-2 shadow-sm p-3" style={{ minWidth: '250px', border: '1px solid var(--gray-200)', borderRadius: '8px', zIndex: 1050, background: '#fff' }}>
-              <div className="d-flex justify-content-between align-items-center mb-2">
+            <div className="dropdown-menu show position-absolute end-0 mt-2 shadow-sm p-0" style={{ minWidth: '300px', border: '1px solid var(--gray-200)', borderRadius: '12px', zIndex: 1050, background: '#fff', overflow: 'hidden' }}>
+              <div className="d-flex justify-content-between align-items-center p-3 border-bottom border-light">
                 <h6 className="mb-0 fw-bold" style={{fontSize: '14px', color:'var(--gray-900)'}}>Notifications</h6>
-                <span style={{fontSize:'11px', color:'var(--blue-500)', cursor:'pointer'}}>Mark all read</span>
+                {unreadCount > 0 && (
+                  <span style={{fontSize:'11px', color:'var(--blue-500)', cursor:'pointer', fontWeight: 600}} onClick={handleMarkAllRead}>Mark all read</span>
+                )}
               </div>
-              <div className="text-center py-3 text-muted" style={{fontSize: '12px'}}>
-                <i className="fa-regular fa-bell-slash mb-2" style={{fontSize: '20px', color: 'var(--gray-300)'}}></i>
-                <div>No new notifications.</div>
+              <div style={{maxHeight: '350px', overflowY: 'auto'}}>
+                {notifications.length === 0 ? (
+                  <div className="text-center py-4 text-muted" style={{fontSize: '12px'}}>
+                    <i className="fa-regular fa-bell-slash mb-2 d-block" style={{fontSize: '24px', color: 'var(--gray-300)'}}></i>
+                    <div>No notifications yet.</div>
+                  </div>
+                ) : (
+                  notifications.map(notif => (
+                    <div 
+                      key={notif._id} 
+                      className={`notif-item-header d-flex gap-3 p-3 border-bottom border-light ${!notif.isRead ? 'bg-light' : ''}`}
+                      onClick={() => {
+                        if (!notif.isRead) handleMarkOneRead(notif._id);
+                        if (notif.relatedPost?._id) navigate(`/${zone}/blog/${notif.relatedPost._id}`);
+                      }}
+                      style={{cursor: 'pointer', transition: 'background 0.2s', fontSize: '13px'}}
+                    >
+                      <div className="d-flex flex-column gap-1 flex-grow-1">
+                        <div style={{color: 'var(--gray-800)', lineHeight: '1.4'}}>
+                          {notif.message}
+                        </div>
+                        <div style={{fontSize: '11px', color: 'var(--gray-400)'}}>
+                          {new Date(notif.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </div>
+                      </div>
+                      {!notif.isRead && (
+                        <div style={{width: '6px', height: '6px', background: 'var(--blue-500)', borderRadius: '50%', marginTop: '6px', flexShrink: 0}}></div>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+              <div className="p-2 border-top border-light bg-light text-center">
+                <span 
+                   style={{fontSize: '12px', color: 'var(--gray-600)', cursor: 'pointer', fontWeight: 500}} 
+                   onClick={() => { navigate(`/${zone}/notifications`); setNotifOpen(false); }}
+                >
+                  View all notifications
+                </span>
               </div>
             </div>
           )}

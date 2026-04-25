@@ -42,97 +42,98 @@ export default function Login() {
   };
 
   return (
-    <div className="auth-bg d-flex align-items-center justify-content-center">
-      <div className="container">
-      <div className="row align-items-center justify-content-center">
-        {/* LEFT */}
-        <div className="col-lg-5 d-none d-lg-block text-white left-panel">
-          <h1 className="fw-bold mb-3" style={{ fontSize: '32px' }}>Blogging and Content Publishing System</h1>
-          <p className="text-info mb-4 fs-5">Write • Share • Inspire</p>
-          <div className="mb-3"><i className="fas fa-pen me-2"></i>Create & publish blogs</div>
-          <div className="mb-3"><i className="fas fa-users me-2"></i>Connect with readers</div>
-          <div><i className="fas fa-chart-line me-2"></i>Track your growth</div>
+    <div className="auth-bg">
+      <div className="auth-card">
+        {/* LEFT PANEL */}
+        <div className="left-panel">
+          <div className="left-panel-content">
+            <h1 className="fw-bold mb-3">Blogging and Content Publishing System</h1>
+            <p className="mb-5 fs-5">Write • Share • Inspire</p>
+            <ul className="auth-features-list">
+              <li><i className="fas fa-pen"></i> Create & publish blogs</li>
+              <li><i className="fas fa-users"></i> Connect with readers</li>
+              <li><i className="fas fa-chart-line"></i> Track your growth</li>
+            </ul>
+          </div>
         </div>
 
-        {/* FORM */}
-        <div className="col-lg-5 col-md-8">
-          <div className="auth-card shadow-lg">
-            <h4 className="text-center fw-bold mb-2">Welcome Back</h4>
-            <p className="text-center text-muted mb-4">Login to continue</p>
+        {/* FORM PANEL */}
+        <div className="auth-form-container">
+          <h2 className="fw-bold mb-2">Welcome Back</h2>
+          <p className="text-muted mb-4">Login to your account to continue</p>
 
-            {error && <div className="alert alert-danger" style={{padding: '10px', fontSize: '14px', borderRadius: '4px'}}>{error}</div>}
+          {error && <div className="alert alert-danger p-2 small">{error}</div>}
 
-            <p className="small text-muted fw-semibold">Select Role</p>
-            
-            <div className="row g-3 mb-4 text-center">
-              <div className="col-4">
-                <div 
-                  className={`role-btn ${role === 'reader' ? 'selected' : ''}`} 
-                  onClick={() => setRole('reader')}
-                >
-                  <i className="fas fa-book text-primary mb-2"></i>
-                  <p className="small mb-0 fw-semibold">Reader</p>
-                </div>
-              </div>
-              <div className="col-4">
-                <div 
-                  className={`role-btn ${role === 'author' ? 'selected' : ''}`} 
-                  onClick={() => setRole('author')}
-                >
-                  <i className="fas fa-pen-nib text-success mb-2"></i>
-                  <p className="small mb-0 fw-semibold">Author</p>
-                </div>
-              </div>
-              <div className="col-4">
-                <div 
-                  className={`role-btn ${role === 'admin' ? 'selected' : ''}`} 
-                  onClick={() => setRole('admin')}
-                >
-                  <i className="fas fa-user-shield text-dark mb-2"></i>
-                  <p className="small mb-0 fw-semibold">Admin</p>
-                </div>
+          <p className="small text-muted fw-bold mb-3 uppercase-tracking">Select Role</p>
+          
+          <div className="row g-3 mb-4">
+            <div className="col-4">
+              <div 
+                className={`role-btn ${role === 'reader' ? 'selected' : ''}`} 
+                onClick={() => setRole('reader')}
+              >
+                <i className="fas fa-book"></i>
+                <span>Reader</span>
               </div>
             </div>
-
-            <div className="mb-3">
-              <label className="form-label">Email</label>
-              <input 
-                type="email" 
-                className="form-input" 
-                placeholder="you@example.com" 
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-
-            <div className="mb-3">
-              <label className="form-label">Password</label>
-              <div className="position-relative">
-                <input 
-                  type={showPw ? "text" : "password"} 
-                  className="form-input pe-5" 
-                  placeholder="••••••" 
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-                <i 
-                  className="fas fa-eye position-absolute top-50 end-0 translate-middle-y me-3" 
-                  style={{ cursor: 'pointer' }} 
-                  onClick={() => setShowPw(!showPw)}
-                ></i>
+            <div className="col-4">
+              <div 
+                className={`role-btn ${role === 'author' ? 'selected' : ''}`} 
+                onClick={() => setRole('author')}
+              >
+                <i className="fas fa-pen-nib"></i>
+                <span>Author</span>
               </div>
             </div>
-
-            <button className="btn-main" onClick={handleLogin} disabled={loading}>
-              {loading ? 'Logging in...' : 'Login'}
-            </button>
-            <p className="text-center mt-4 text-muted">
-              Don't have account? <Link to="/register" className="text-primary fw-semibold">Register</Link>
-            </p>
+            <div className="col-4">
+              <div 
+                className={`role-btn ${role === 'admin' ? 'selected' : ''}`} 
+                onClick={() => setRole('admin')}
+              >
+                <i className="fas fa-user-shield"></i>
+                <span>Admin</span>
+              </div>
+            </div>
           </div>
+
+          <div className="mb-3">
+            <label className="form-label-c mb-2">Email Address</label>
+            <input 
+              type="email" 
+              className="form-input" 
+              placeholder="name@example.com" 
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+
+          <div className="mb-4">
+            <label className="form-label-c mb-2">Password</label>
+            <div className="position-relative">
+              <input 
+                type={showPw ? "text" : "password"} 
+                className="form-input" 
+                placeholder="••••••••" 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <i 
+                className={`fas ${showPw ? 'fa-eye-slash' : 'fa-eye'} position-absolute top-50 end-0 translate-middle-y me-3`} 
+                style={{ cursor: 'pointer', color: '#94a3b8' }} 
+                onClick={() => setShowPw(!showPw)}
+              ></i>
+            </div>
+          </div>
+
+          <button className="btn-main mb-4" onClick={handleLogin} disabled={loading}>
+            {loading ? 'Authenticating...' : 'Sign In'}
+          </button>
+
+          <p className="text-center text-muted small">
+            Don't have an account? <Link to="/register" className="text-primary fw-bold">Create Account</Link>
+          </p>
         </div>
       </div>
     </div>
-  </div>
   );
 }

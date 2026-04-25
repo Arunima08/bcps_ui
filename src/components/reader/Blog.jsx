@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link, useParams } from 'react-router-dom';
+import { useNavigate, Link, useParams, useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import api from '../../api';
 
 export default function Blog() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const location = useLocation();
+  // Detect current zone from URL path (author, admin, or reader)
+  const zone = location.pathname.startsWith('/author') ? 'author' : location.pathname.startsWith('/admin') ? 'admin' : 'reader';
   const [post, setPost] = useState(null);
   const [comments, setComments] = useState([]);
   const [relatedPosts, setRelatedPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [commentText, setCommentText] = useState('');
+  const [replyingTo, setReplyingTo] = useState(null); // { id, name }
   const [submittingComment, setSubmittingComment] = useState(false);
   const [liked, setLiked] = useState(false);
   const [bookmarked, setBookmarked] = useState(false);
@@ -78,11 +82,28 @@ export default function Blog() {
     if (!commentText.trim()) return;
     try {
       setSubmittingComment(true);
-      const response = await api.post(`/reader/blog/${id}/comment`, { text: commentText });
+      const payload = { text: commentText };
+      if (replyingTo) {
+        payload.parentComment = replyingTo.id;
+      }
+      
+      const response = await api.post(`/reader/blog/${id}/comment`, payload);
       if (response.data.success) {
-        setComments([response.data.data, ...comments]);
+        if (replyingTo) {
+          // Update the parent comment's replies in the UI
+          const updatedComments = comments.map(c => {
+            if (c._id === replyingTo.id) {
+              return { ...c, replies: [...(c.replies || []), response.data.data] };
+            }
+            return c;
+          });
+          setComments(updatedComments);
+          setReplyingTo(null);
+        } else {
+          setComments([response.data.data, ...comments]);
+        }
         setCommentText('');
-        toast.success('Comment posted!');
+        toast.success(replyingTo ? 'Reply posted!' : 'Comment posted!');
       }
     } catch (error) {
       console.error('Error posting comment:', error);
@@ -162,9 +183,15 @@ export default function Blog() {
           {/* Comments Section */}
           <div className="card-custom"><div className="card-head-custom"><span className="card-title-c">Comments ({comments.length})</span></div><div className="p-3">
             <div className="mb-3">
+              {replyingTo && (
+                <div className="d-flex align-items-center justify-content-between mb-2 p-2 bg-light rounded" style={{fontSize: '13px'}}>
+                  <span>Replying to <strong>{replyingTo.name}</strong></span>
+                  <button className="btn btn-sm text-danger p-0" onClick={() => setReplyingTo(null)}><i className="fa-solid fa-times"></i> Cancel</button>
+                </div>
+              )}
               <textarea
                 className="form-control-c"
-                placeholder="Write a comment..."
+                placeholder={replyingTo ? "Write a reply..." : "Write a comment..."}
                 value={commentText}
                 onChange={(e) => setCommentText(e.target.value)}
                 rows="3"
@@ -172,7 +199,7 @@ export default function Blog() {
               ></textarea>
             </div>
             <button className="btn-primary-c btn-sm-c mb-3" onClick={handlePostComment} disabled={submittingComment}>
-              <i className="fa-solid fa-paper-plane"></i> {submittingComment ? 'Posting...' : 'Post Comment'}
+              <i className="fa-solid fa-paper-plane"></i> {submittingComment ? 'Posting...' : replyingTo ? 'Post Reply' : 'Post Comment'}
             </button>
             <hr style={{ border: '1px solid var(--gray-200)' }} />
             {comments.length === 0 ? (
@@ -183,9 +210,40 @@ export default function Blog() {
                   <div className="avatar-c d-flex align-items-center justify-content-center text-white fw-bold" style={{ background: bgColors[index % bgColors.length], width: '28px', height: '28px', fontSize: '11px' }}>
                     {comment.user?.name?.charAt(0) || 'G'}
                   </div>
-                  <div>
+                  <div className="flex-grow-1">
                     <div className="notif-text"><strong>{comment.user?.name || 'Guest'}</strong> — {comment.text}</div>
-                    <div className="notif-time">{new Date(comment.createdAt).toLocaleString()}</div>
+                    <div className="d-flex align-items-center gap-3">
+                      <div className="notif-time">{new Date(comment.createdAt).toLocaleString()}</div>
+                      <button 
+                        className="btn btn-link p-0 text-decoration-none" 
+                        style={{fontSize: '12px', color: 'var(--blue-500)', fontWeight: 600}}
+                        onClick={() => {
+                          setReplyingTo({ id: comment._id, name: comment.user?.name || 'Guest' });
+                          document.querySelector('textarea').focus();
+                        }}
+                      >
+                        Reply
+                      </button>
+                    </div>
+
+                    {/* Author Replies */}
+                    {comment.replies && comment.replies.length > 0 && (
+                      <div className="mt-2 border-start ps-3 py-1" style={{ borderColor: 'var(--blue-500)', borderLeftWidth: '3px' }}>
+                        {comment.replies.map((reply, i) => (
+                          <div key={i} className="d-flex align-items-start gap-2 mb-1">
+                            <div className="avatar-c d-flex align-items-center justify-content-center text-white fw-bold" style={{ background: 'var(--blue-500)', width: '22px', height: '22px', fontSize: '10px', flexShrink: 0 }}>
+                              {reply.user?.name?.charAt(0) || 'A'}
+                            </div>
+                            <div>
+                              <div className="notif-text" style={{ fontSize: '13px' }}>
+                                <strong>{reply.user?.name || 'Author'}</strong> <span style={{ fontSize: '11px', color: 'var(--blue-500)', fontWeight: 600 }}>· Author</span> — {reply.text}
+                              </div>
+                              <div className="notif-time">{new Date(reply.createdAt).toLocaleString()}</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               ))
@@ -215,7 +273,7 @@ export default function Blog() {
           {relatedPosts.length > 0 && (
             <div className="card-custom"><div className="card-head-custom"><span className="card-title-c">Related Posts</span></div><div className="p-3">
               {relatedPosts.map((rp, i) => (
-                <Link key={rp._id} to={`/reader/blog/${rp._id}`} className="d-flex gap-2 mb-3 text-decoration-none" style={{ cursor: 'pointer' }}>
+                <Link key={rp._id} to={`/${zone}/blog/${rp._id}`} className="d-flex gap-2 mb-3 text-decoration-none" style={{ cursor: 'pointer' }}>
                   <div style={{ fontSize: '24px' }}>📝</div>
                   <div>
                     <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--gray-700)' }}>{rp.title}</div>

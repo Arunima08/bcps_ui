@@ -9,6 +9,10 @@ export default function Users() {
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('All Roles');
   const [loading, setLoading] = useState(true);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
+  const [editFormData, setEditFormData] = useState({ name: '', email: '', role: '' });
+  const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -41,6 +45,27 @@ export default function Users() {
     } catch (error) {
       console.error(`Error performing ${action} on user:`, error);
       toast.error(`Failed to ${action} user`);
+    }
+  };
+
+  const handleEditClick = (user) => {
+    setEditingUser(user);
+    setEditFormData({ name: user.name, email: user.email, role: user.role });
+    setShowEditModal(true);
+  };
+
+  const handleUpdateUser = async () => {
+    try {
+      setUpdating(true);
+      await api.put(`/admin/users/${editingUser._id}`, editFormData);
+      toast.success('User updated successfully');
+      setShowEditModal(false);
+      fetchUsers();
+    } catch (error) {
+      console.error('Error updating user:', error);
+      toast.error('Failed to update user');
+    } finally {
+      setUpdating(false);
     }
   };
 
@@ -115,7 +140,7 @@ export default function Users() {
                 <td>{new Date(user.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
                 <td><span className={`badge-c ${statusClass}`}>{user.status.charAt(0).toUpperCase() + user.status.slice(1)}</span></td>
                 <td>
-                  <button className="btn-outline-c btn-sm-c me-1">Edit</button>
+                   <button className="btn-outline-c btn-sm-c me-1" onClick={() => handleEditClick(user)}>Edit</button>
                   {user.status === 'active' && user.role !== 'admin' && <button className="btn-danger-c" onClick={() => handleAction(user._id, 'ban')}>Ban</button>}
                   {user.status === 'pending' && <button className="btn-success-c" onClick={() => handleAction(user._id, 'approve')}>Approve</button>}
                   {user.status === 'banned' && <button className="btn-success-c" onClick={() => handleAction(user._id, 'restore')}>Restore</button>}
@@ -128,6 +153,69 @@ export default function Users() {
     </table>
   </div>
 </div>
+
+      {/* Edit User Modal */}
+      {showEditModal && (
+        <div className="modal-overlay-c" style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center',
+          justifyContent: 'center', zIndex: 1050, backdropFilter: 'blur(4px)'
+        }} onClick={() => setShowEditModal(false)}>
+          <div className="modal-content-c card-custom" style={{
+            width: '100%', maxWidth: '450px', animation: 'modalSlideUp 0.3s ease-out'
+          }} onClick={e => e.stopPropagation()}>
+            <div className="card-head-custom" style={{borderBottom: '1px solid var(--gray-200)', padding: '15px 20px'}}>
+              <span className="card-title-c">Edit User Profile</span>
+              <button className="btn-outline-c btn-sm-c" onClick={() => setShowEditModal(false)}>
+                 <i className="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+            <div className="p-4">
+              <div className="mb-3">
+                <label className="form-label fw-600 mb-2 d-block" style={{fontSize: '13px'}}>Full Name</label>
+                <input 
+                  type="text" className="form-control-c" 
+                  value={editFormData.name} 
+                  onChange={(e) => setEditFormData({...editFormData, name: e.target.value})}
+                />
+              </div>
+              <div className="mb-3">
+                <label className="form-label fw-600 mb-2 d-block" style={{fontSize: '13px'}}>Email Address</label>
+                <input 
+                  type="email" className="form-control-c" 
+                  value={editFormData.email} 
+                  onChange={(e) => setEditFormData({...editFormData, email: e.target.value})}
+                />
+              </div>
+              <div className="mb-4">
+                <label className="form-label fw-600 mb-2 d-block" style={{fontSize: '13px'}}>System Role</label>
+                <select 
+                  className="form-control-c" 
+                  value={editFormData.role} 
+                  onChange={(e) => setEditFormData({...editFormData, role: e.target.value})}
+                >
+                  <option value="reader">Reader</option>
+                  <option value="author">Author</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+              <div className="d-flex gap-2">
+                <button className="btn-primary-c flex-grow-1" onClick={handleUpdateUser} disabled={updating}>
+                  {updating ? 'Updating...' : 'Save Changes'}
+                </button>
+                <button className="btn-outline-c" onClick={() => setShowEditModal(false)}>Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes modalSlideUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}} />
     </>
   );
 }

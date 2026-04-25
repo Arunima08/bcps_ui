@@ -1,20 +1,42 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import api from '../../api';
 
 export default function Sidebar({ zone, sidebarOpen, closeSidebar }) {
   const navigate = useNavigate();
   const location = useLocation();
   const user = JSON.parse(sessionStorage.getItem('user')) || {};
+  // console.log(user, "#######################");
 
   const getStyle = (z) => {
     if (z === zone) {
-        if (z === 'admin') return 'zone-btn active-admin';
-        if (z === 'author') return 'zone-btn active-author';
-        if (z === 'reader') return 'zone-btn active-reader';
+      if (z === 'admin') return 'zone-btn active-admin';
+      if (z === 'author') return 'zone-btn active-author';
+      if (z === 'reader') return 'zone-btn active-reader';
     }
     return 'zone-btn';
   }
-  
+
+  const [counts, setCounts] = useState({});
+
+  useEffect(() => {
+    fetchCounts();
+    // Poll for updates every 30 seconds
+    const interval = setInterval(fetchCounts, 30000);
+    return () => clearInterval(interval);
+  }, [zone]);
+
+  const fetchCounts = async () => {
+    try {
+      const response = await api.get('/common/counts');
+      if (response.data.success) {
+        setCounts(response.data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching counts:', error);
+    }
+  };
+
   const iLink = (p) => {
     const currentPath = location.pathname;
     const targetPath = p === '' ? `/${zone}` : `/${zone}/${p}`;
@@ -24,11 +46,11 @@ export default function Sidebar({ zone, sidebarOpen, closeSidebar }) {
   return (
     <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
       {/* Logo */}
-      <div className="d-flex align-items-center gap-2 p-3 border-bottom border-secondary border-opacity-25">
-        <div className="logo-icon">🛒</div>
+      <div className="d-flex align-items-center gap-3 p-4 border-bottom">
+        <div className="logo-icon">B</div>
         <div>
-          <div className="logo-text" style={{ fontSize: '12px' }}>Blogging & Content</div>
-          <div className="logo-sub" style={{ fontSize: '10px' }}>Publishing System</div>
+          <div className="logo-text" style={{ fontSize: '13px', color: '#1e293b' }}>Blogging & Content</div>
+          <div className="logo-sub" style={{ fontSize: '10px', color: '#64748b' }}>Publishing System</div>
         </div>
       </div>
 
@@ -43,13 +65,19 @@ export default function Sidebar({ zone, sidebarOpen, closeSidebar }) {
           </Link>
           <div className="sidebar-section-label mt-2">Management</div>
           <Link to="/admin/users" className={iLink('users')} onClick={closeSidebar}>
-            <span className="nav-icon-c"><i className="fa-solid fa-users"></i></span>User Management<span className="nav-badge-c">12</span>
+            <span className="nav-icon-c"><i className="fa-solid fa-users"></i></span>User Management
+            {counts.totalUsers > 0 && <span className="nav-badge-c">{counts.totalUsers}</span>}
           </Link>
           <Link to="/admin/categories" className={iLink('categories')} onClick={closeSidebar}>
             <span className="nav-icon-c"><i className="fa-solid fa-tags"></i></span>Categories
           </Link>
           <Link to="/admin/posts" className={iLink('posts')} onClick={closeSidebar}>
-            <span className="nav-icon-c"><i className="fa-solid fa-file-pen"></i></span>Post Approval<span className="nav-badge-c amber">7</span>
+            <span className="nav-icon-c"><i className="fa-solid fa-file-pen"></i></span>Post Approval
+            {counts.pendingPosts > 0 && <span className="nav-badge-c amber">{counts.pendingPosts}</span>}
+          </Link>
+          <Link to="/admin/notifications" className={iLink('notifications')} onClick={closeSidebar}>
+            <span className="nav-icon-c"><i className="fa-solid fa-bell"></i></span>Notifications
+            {counts.unreadNotifications > 0 && <span className="nav-badge-c">{counts.unreadNotifications}</span>}
           </Link>
           {/* <div className="sidebar-section-label mt-2">Insights</div> */}
         </div>
@@ -65,10 +93,15 @@ export default function Sidebar({ zone, sidebarOpen, closeSidebar }) {
             <span className="nav-icon-c"><i className="fa-solid fa-plus"></i></span>Create Blog
           </Link>
           <Link to="/author/comments" className={iLink('comments')} onClick={closeSidebar}>
-            <span className="nav-icon-c"><i className="fa-solid fa-file-lines"></i></span>Comments<span className="nav-badge-c amber">3</span>
+            <span className="nav-icon-c"><i className="fa-solid fa-file-lines"></i></span>Comments
+            {counts.pendingComments > 0 && <span className="nav-badge-c amber">{counts.pendingComments}</span>}
           </Link>
           <Link to="/author/submit" className={iLink('submit')} onClick={closeSidebar}>
             <span className="nav-icon-c"><i className="fa-solid fa-paper-plane"></i></span>Submitted Posts
+          </Link>
+          <Link to="/author/notifications" className={iLink('notifications')} onClick={closeSidebar}>
+            <span className="nav-icon-c"><i className="fa-solid fa-bell"></i></span>Notifications
+            {counts.unreadNotifications > 0 && <span className="nav-badge-c">{counts.unreadNotifications}</span>}
           </Link>
         </div>
       )}
@@ -83,7 +116,8 @@ export default function Sidebar({ zone, sidebarOpen, closeSidebar }) {
             <span className="nav-icon-c"><i className="fa-solid fa-magnifying-glass"></i></span>Browse Content
           </Link>
           <Link to="/reader/notifications" className={iLink('notifications')} onClick={closeSidebar}>
-            <span className="nav-icon-c"><i className="fa-solid fa-bell"></i></span>Notifications<span className="nav-badge-c">4</span>
+            <span className="nav-icon-c"><i className="fa-solid fa-bell"></i></span>Notifications
+            {counts.unreadNotifications > 0 && <span className="nav-badge-c">{counts.unreadNotifications}</span>}
           </Link>
           <Link to="/reader/profile" className={iLink('profile')} onClick={closeSidebar}>
             <span className="nav-icon-c"><i className="fa-solid fa-circle-user"></i></span>Profile
@@ -92,23 +126,24 @@ export default function Sidebar({ zone, sidebarOpen, closeSidebar }) {
       )}
 
       <div className="sidebar-footer p-3">
-        <div className="d-flex align-items-center gap-2 p-2 rounded-3" style={{cursor:'pointer'}}>
-          <div className="avatar-c d-flex align-items-center justify-content-center fw-bold text-white overflow-hidden" style={{width:'36px', height:'36px', fontSize:'14px', background: zone === 'admin' ? '#2563eb' : (zone === 'author' ? '#059669' : '#f59e0b')}}>
+        <div className="d-flex align-items-center gap-3 p-2 rounded-4" style={{ cursor: 'pointer', background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+          <div className="avatar-c d-flex align-items-center justify-content-center fw-bold text-white overflow-hidden" style={{ width: '40px', height: '40px', fontSize: '15px', background: '#ff5722', boxShadow: '0 4px 12px rgba(255, 87, 34, 0.3)' }}>
             {user.profilePic && user.profilePic !== '' ? (
-              <img src={`http://localhost:5001/${user.profilePic}`} alt="avatar" style={{width:'100%', height:'100%', borderRadius:'50%', objectFit:'cover'}} />
+              <img src={`http://localhost:5001/${user.profilePic}`} alt="avatar" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
             ) : (
-              (user.name?.charAt(0) || zone.charAt(0)).toUpperCase()
+              'A'
             )}
           </div>
           <div>
-            <div style={{fontSize:'13px', fontWeight:600, color:'#fff'}} id="nav-user-name">
-                {user.name || 'Guest User'}
+            <div style={{ fontSize: '14px', fontWeight: 600, color: '#1e293b' }} id="nav-user-name">
+              {/* Arunima */}
+              {user?.name}
             </div>
-            <div style={{fontSize:'11px', color:'var(--blue-400)', textTransform: 'capitalize'}} id="nav-user-role">
-                {user.role || zone}
+            <div style={{ fontSize: '11px', color: '#64748b', textTransform: 'capitalize', letterSpacing: '0.5px' }} id="nav-user-role">
+              {user.role || zone}
             </div>
           </div>
-          <i className="fa-solid fa-ellipsis-vertical ms-auto" style={{color:'rgba(255,255,255,.3)', fontSize:'12px'}}></i>
+          <i className="fa-solid fa-ellipsis-vertical ms-auto" style={{ color: 'rgba(255,255,255,.3)', fontSize: '12px' }}></i>
         </div>
       </div>
     </aside>

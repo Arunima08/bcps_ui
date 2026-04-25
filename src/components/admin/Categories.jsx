@@ -17,6 +17,7 @@ export default function Categories() {
     status: 'active'
   });
   const [submitting, setSubmitting] = useState(false);
+  const [editId, setEditId] = useState(null);
 
   useEffect(() => {
     fetchCategories();
@@ -42,16 +43,23 @@ export default function Categories() {
   const handleSubmit = async () => {
     try {
       setSubmitting(true);
-      const response = await api.post('/admin/categories', formData);
+      let response;
+      if (editId) {
+        response = await api.put(`/admin/categories/${editId}`, formData);
+      } else {
+        response = await api.post('/admin/categories', formData);
+      }
+      
       if (response.data.success) {
         setShowModal(false);
+        setEditId(null);
         setFormData({ name: '', slug: '', postCount: 0, status: 'active' });
-        toast.success('Category created successfully');
+        toast.success(editId ? 'Category updated' : 'Category created');
         fetchCategories();
       }
     } catch (error) {
-      console.error('Error creating category:', error);
-      toast.error(error.response?.data?.message || 'Failed to create category');
+      console.error('Error saving category:', error);
+      toast.error(error.response?.data?.message || 'Failed to save category');
     } finally {
       setSubmitting(false);
     }
@@ -68,6 +76,17 @@ export default function Categories() {
         toast.error('Failed to delete category');
       }
     }
+  };
+
+  const handleEdit = (category) => {
+    setEditId(category._id);
+    setFormData({
+      name: category.name,
+      slug: category.slug,
+      postCount: category.postCount,
+      status: category.status
+    });
+    setShowModal(true);
   };
 
   return (
@@ -97,7 +116,7 @@ export default function Categories() {
                     <td>{category.postCount}</td>
                     <td><span className={`badge-c ${category.status === 'active' ? 'badge-published' : 'badge-pending'}`}>{category.status.charAt(0).toUpperCase() + category.status.slice(1)}</span></td>
                     <td>
-                      <button className="btn-outline-c btn-sm-c me-1">Edit</button>
+                      <button className="btn-outline-c btn-sm-c me-1" onClick={() => handleEdit(category)}>Edit</button>
                       <button className="btn-danger-c" onClick={() => handleDelete(category._id)}>Delete</button>
                     </td>
                   </tr>
@@ -127,8 +146,8 @@ export default function Categories() {
             animation: 'modalSlideUp 0.3s ease-out'
           }} onClick={e => e.stopPropagation()}>
             <div className="card-head-custom" style={{borderBottom: '1px solid var(--gray-200)', padding: '15px 20px'}}>
-              <span className="card-title-c">Add New Category</span>
-              <button className="btn-outline-c btn-sm-c" onClick={() => setShowModal(false)}>
+              <span className="card-title-c">{editId ? 'Edit Category' : 'Add New Category'}</span>
+              <button className="btn-outline-c btn-sm-c" onClick={() => { setShowModal(false); setEditId(null); setFormData({name:'', slug:'', postCount:0, status:'active'}); }}>
                  <i className="fa-solid fa-xmark"></i>
               </button>
             </div>
@@ -179,9 +198,9 @@ export default function Categories() {
               </div>
               <div className="d-flex gap-2">
                 <button className="btn-primary-c flex-grow-1" style={{padding: '12px'}} onClick={handleSubmit} disabled={submitting}>
-                  {submitting ? 'Creating...' : 'Create Category'}
+                  {submitting ? 'Saving...' : (editId ? 'Update Category' : 'Create Category')}
                 </button>
-                <button className="btn-outline-c" style={{padding: '12px'}} onClick={() => setShowModal(false)}>Cancel</button>
+                <button className="btn-outline-c" style={{padding: '12px'}} onClick={() => { setShowModal(false); setEditId(null); setFormData({name:'', slug:'', postCount:0, status:'active'}); }}>Cancel</button>
               </div>
             </div>
           </div>
