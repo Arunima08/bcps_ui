@@ -164,7 +164,7 @@ export default function Blog() {
                   </div>
                 </div>
               </div>
-              <div style={{ fontSize: '15px', lineHeight: '1.8', color: 'var(--gray-700)', whiteSpace: 'pre-wrap' }}>{post.content}</div>
+              <div style={{ fontSize: '15px', lineHeight: '1.8', color: 'var(--gray-700)', whiteSpace: 'pre-wrap' }} dangerouslySetInnerHTML={{ __html: post.content }}></div>
               <hr style={{ border: '1px solid var(--gray-200)', margin: '20px 0' }} />
               <div className="d-flex gap-2 flex-wrap">
                 <button className={`btn-outline-c ${liked ? 'active' : ''}`} onClick={handleLike} style={liked ? { background: 'var(--red)', color: '#fff', borderColor: 'var(--red)' } : {}}>

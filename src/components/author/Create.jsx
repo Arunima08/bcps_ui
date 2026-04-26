@@ -35,76 +35,132 @@ export default function Create() {
     fetchCategories();
   }, []);
 
-  const handleAIAction = (action) => {
-    if (!content && !['title', 'keywords'].includes(action)) {
-      toast.warn("Please write some content first!");
-      return;
-    }
-    setAiLoading(action);
+  // const handleAIAction = (action) => {
+  //   if (!content && !['title', 'keywords'].includes(action)) {
+  //     toast.warn("Please write some content first!");
+  //     return;
+  //   }
+  //   setAiLoading(action);
     
-    // Simulate AI processing
-    setTimeout(() => {
+  //   // Simulate AI processing
+  //   setTimeout(() => {
+  //     switch(action) {
+  //       case 'summarize':
+  //         toast.info("🤖 AI Summary of your draft:\n\nThis article discusses the key elements of the selected category, providing a comprehensive overview suitable for beginners and experts alike.");
+  //         break;
+  //       case 'translate':
+  //         const hindiTranslation = "यह आपके ब्लॉग पोस्ट का एआई जनरेटेड हिंदी अनुवाद है। कृपया प्रकाशित करने से पहले समीक्षा करें।\n\n" + content;
+  //         setContent(hindiTranslation);
+  //         if(editorRef.current) editorRef.current.innerHTML = hindiTranslation;
+  //         toast.success("🤖 Translated to Hindi!");
+  //         break;
+  //       case 'grammar':
+  //         toast.success("🤖 AI Grammar Check: Perfect! No critical grammatical errors found.");
+  //         break;
+  //       case 'title':
+  //         const catName = categories.find(c => c._id === category)?.name || "Amazing Topics";
+  //         const suggestedTitles = [
+  //           `Ultimate Guide: 10 Things You Didn't Know About ${catName}`,
+  //           `Mastering ${catName}: From Beginner to Expert`,
+  //           `Why ${catName} is the Future of Industry`,
+  //           `${catName} Unlocked: Secrets to Success`
+  //         ];
+  //         const randomTitle = suggestedTitles[Math.floor(Math.random() * suggestedTitles.length)];
+  //         setTitle(randomTitle);
+  //         toast.success("🤖 Title Suggested!");
+  //         break;
+  //       case 'improve':
+  //         const improved = "✨ [AI IMPROVED VERSION]\n\n" + content.replace(/amazing/g, 'extraordinary').replace(/good/g, 'exceptional');
+  //         setContent(improved);
+  //         if(editorRef.current) editorRef.current.innerHTML = improved;
+  //         toast.success("🤖 Writing Improved!");
+  //         break;
+  //       case 'expand':
+  //         const expanded = content + "\n\nFurthermore, it is essential to consider the broader implications of this topic. Many experts suggest that the integration of these concepts will lead to significant advancements in the field over the next decade...";
+  //         setContent(expanded);
+  //         if(editorRef.current) editorRef.current.innerHTML = expanded;
+  //         toast.success("🤖 Content Expanded!");
+  //         break;
+  //       case 'keywords':
+  //         const generatedTags = "AI, Future, Innovation, Trends, Guide";
+  //         setTags(generatedTags);
+  //         toast.success("🤖 SEO Keywords Generated!");
+  //         break;
+  //       case 'tone':
+  //         const creativeContent = "🌟 Imagine a world where...\n\n" + content;
+  //         setContent(creativeContent);
+  //         if(editorRef.current) editorRef.current.innerHTML = creativeContent;
+  //         toast.success("🤖 Tone changed to Creative!");
+  //         break;
+  //       case 'simplify':
+  //         const simplified = "💡 In simple terms: " + content.substring(0, 100) + "... (Simplified for clarity)";
+  //         setContent(simplified);
+  //         if(editorRef.current) editorRef.current.innerHTML = simplified;
+  //         toast.success("🤖 Content Simplified!");
+  //         break;
+  //       default:
+  //         break;
+  //     }
+  //     setAiLoading(null);
+  //   }, 1500);
+  // };
+// Replace your existing handleAIAction with this:
+
+const handleAIAction = async (action) => {
+  // Prevent calling the API if there's no content (save quota!)
+  if (!content && !['title', 'keywords'].includes(action)) {
+    toast.warn("Please write some content first!");
+    return;
+  }
+  
+  setAiLoading(action);
+  
+  try {
+    const catName = categories.find(c => c._id === category)?.name || "General";
+    
+    // Call our newly created backend route
+    const response = await api.post('/author/ai/process', {
+      action,
+      content,
+      categoryName: catName
+    });
+
+    if (response.data.success) {
+      const aiResult = response.data.data;
+
+      // Handle the result based on the action
       switch(action) {
-        case 'summarize':
-          toast.info("🤖 AI Summary of your draft:\n\nThis article discusses the key elements of the selected category, providing a comprehensive overview suitable for beginners and experts alike.");
-          break;
-        case 'translate':
-          const hindiTranslation = "यह आपके ब्लॉग पोस्ट का एआई जनरेटेड हिंदी अनुवाद है। कृपया प्रकाशित करने से पहले समीक्षा करें।\n\n" + content;
-          setContent(hindiTranslation);
-          if(editorRef.current) editorRef.current.innerHTML = hindiTranslation;
-          toast.success("🤖 Translated to Hindi!");
-          break;
-        case 'grammar':
-          toast.success("🤖 AI Grammar Check: Perfect! No critical grammatical errors found.");
-          break;
         case 'title':
-          const catName = categories.find(c => c._id === category)?.name || "Amazing Topics";
-          const suggestedTitles = [
-            `Ultimate Guide: 10 Things You Didn't Know About ${catName}`,
-            `Mastering ${catName}: From Beginner to Expert`,
-            `Why ${catName} is the Future of Industry`,
-            `${catName} Unlocked: Secrets to Success`
-          ];
-          const randomTitle = suggestedTitles[Math.floor(Math.random() * suggestedTitles.length)];
-          setTitle(randomTitle);
-          toast.success("🤖 Title Suggested!");
-          break;
-        case 'improve':
-          const improved = "✨ [AI IMPROVED VERSION]\n\n" + content.replace(/amazing/g, 'extraordinary').replace(/good/g, 'exceptional');
-          setContent(improved);
-          if(editorRef.current) editorRef.current.innerHTML = improved;
-          toast.success("🤖 Writing Improved!");
-          break;
-        case 'expand':
-          const expanded = content + "\n\nFurthermore, it is essential to consider the broader implications of this topic. Many experts suggest that the integration of these concepts will lead to significant advancements in the field over the next decade...";
-          setContent(expanded);
-          if(editorRef.current) editorRef.current.innerHTML = expanded;
-          toast.success("🤖 Content Expanded!");
+          setTitle(aiResult.trim().replace(/["*]/g, '')); // Clean up quotes/markdown
+          toast.success("🤖 Title Applied!");
           break;
         case 'keywords':
-          const generatedTags = "AI, Future, Innovation, Trends, Guide";
-          setTags(generatedTags);
-          toast.success("🤖 SEO Keywords Generated!");
+          setTags(aiResult.trim());
+          toast.success("🤖 SEO Keywords Applied!");
           break;
-        case 'tone':
-          const creativeContent = "🌟 Imagine a world where...\n\n" + content;
-          setContent(creativeContent);
-          if(editorRef.current) editorRef.current.innerHTML = creativeContent;
-          toast.success("🤖 Tone changed to Creative!");
-          break;
-        case 'simplify':
-          const simplified = "💡 In simple terms: " + content.substring(0, 100) + "... (Simplified for clarity)";
-          setContent(simplified);
-          if(editorRef.current) editorRef.current.innerHTML = simplified;
-          toast.success("🤖 Content Simplified!");
+        case 'summarize':
+        case 'grammar':
+          // These actions are better suited for an informational alert rather than replacing the editor content
+          alert(`🤖 AI Feedback:\n\n${aiResult}`);
+          toast.success(`🤖 ${action.charAt(0).toUpperCase() + action.slice(1)} generated!`);
           break;
         default:
+          // For improve, expand, simplify, tone, and translate: replace the editor content
+          setContent(aiResult);
+          if (editorRef.current) {
+             editorRef.current.innerHTML = aiResult;
+          }
+          toast.success(`🤖 Text successfully updated!`);
           break;
       }
-      setAiLoading(null);
-    }, 1500);
-  };
-
+    }
+  } catch (error) {
+    console.error("AI Action failed:", error);
+    toast.error("Failed to connect to the AI assistant.");
+  } finally {
+    setAiLoading(null);
+  }
+};
   const applyCommand = (command, value = null) => {
     document.execCommand(command, false, value);
     if (editorRef.current) {

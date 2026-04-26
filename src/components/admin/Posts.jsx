@@ -53,6 +53,44 @@ export default function Posts() {
     }
   };
 
+  // const handleAction = async (postId, action) => {
+  //   try {
+  //     if(action === 'approve') {
+  //       // Show a loading toast while Gemini analyzes the post
+  //       const toastId = toast.loading("🤖 AI is reviewing content for vulgarity...");
+        
+  //       try {
+  //         await api.put(`/admin/posts/${postId}/approve`);
+  //         toast.update(toastId, { render: "Post approved & published!", type: "success", isLoading: false, autoClose: 3000 });
+  //       } catch (approveError) {
+  //         // If the backend returns a 403, it means the AI caught something vulgar
+  //         const errorMsg = approveError.response?.data?.message || "Failed to approve post";
+  //         toast.update(toastId, { render: `🚨 ${errorMsg}`, type: "error", isLoading: false, autoClose: 6000 });
+  //       }
+        
+  //     } else if (action === 'reject') {
+  //       await api.put(`/admin/posts/${postId}/reject`);
+  //       toast.success(`Post rejected successfully`);
+  //     } else if (action === 'delete') {
+  //       if(window.confirm("Delete this post permanently?")) {
+  //         await api.delete(`/admin/posts/${postId}`);
+  //         toast.success(`Post deleted successfully`);
+  //       } else {
+  //         return;
+  //       }
+  //     }
+      
+  //     // Refresh the table to show the new status (published or auto-rejected)
+  //     fetchPosts();
+  //   } catch (error) {
+  //     console.error(`Error performing ${action} on post:`, error);
+  //     // Fallback error for non-approval actions
+  //     if (action !== 'approve') {
+  //       toast.error(`Error: Failed to ${action} post`);
+  //     }
+  //   }
+  // };
+
   const pendingCount = posts.filter(p => p.status === 'pending' || p.status === 'in-review').length;
 
   return (
